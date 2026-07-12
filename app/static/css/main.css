@@ -1,0 +1,568 @@
+/* ============================================================
+   DESIGN TOKENS
+   Single source of truth for color, type, spacing, and motion.
+   ============================================================ */
+:root {
+    /* Color */
+    --color-bg: #FBFBFA;
+    --color-surface: #F4F5F7;
+    --color-border: #E4E6EA;
+    --color-text: #14171F;
+    --color-text-secondary: #5B616E;
+    --color-accent: #2F6F5E;
+    --color-accent-soft: #E7EFEC;
+
+    /* Code — a deliberately separate dark surface, not a gray box */
+    --color-code-bg: #161A22;
+    --color-code-text: #E7E9ED;
+    --color-code-border: rgba(255, 255, 255, 0.06);
+    --color-inline-code-bg: #EEF0F2;
+
+    /* Type */
+    --font-serif: 'IBM Plex Serif', Georgia, serif;
+    --font-sans: 'IBM Plex Sans', -apple-system, sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+
+    /* Spacing scale — every gap/padding/margin below references this */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 24px;
+    --space-6: 32px;
+    --space-7: 48px;
+    --space-8: 64px;
+
+    /* Radius + elevation, used sparingly */
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --shadow-sm: 0 1px 2px rgba(20, 23, 31, 0.06);
+    --shadow-card: 0 1px 3px rgba(20, 23, 31, 0.08), 0 1px 2px rgba(20, 23, 31, 0.04);
+    --shadow-card-hover: 0 4px 12px rgba(20, 23, 31, 0.10), 0 2px 4px rgba(20, 23, 31, 0.06);
+
+    /* Motion — one value, used everywhere, so it reads as one system */
+    --transition-fast: 150ms ease;
+
+    /* Layout */
+    --topnav-height: 56px;
+    --sidebar-width: 280px;
+    --content-max-width: 720px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: var(--font-sans);
+    color: var(--color-text);
+    background: var(--color-bg);
+    -webkit-font-smoothing: antialiased;
+}
+
+a {
+    transition: color var(--transition-fast), background-color var(--transition-fast);
+}
+
+/* Keyboard focus must always be visible — never suppressed, only restyled */
+a:focus-visible,
+summary:focus-visible,
+button:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+}
+
+/* Skip link: invisible until a keyboard user tabs to it, then jumps
+   straight past the nav to the lesson content. */
+.skip-link {
+    position: absolute;
+    left: var(--space-3);
+    top: -48px;
+    background: var(--color-text);
+    color: var(--color-bg);
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-sm);
+    z-index: 100;
+    text-decoration: none;
+    transition: top var(--transition-fast);
+}
+
+.skip-link:focus {
+    top: var(--space-3);
+}
+
+/* ============================================================
+   REGION 1 — TOP NAVIGATION
+   Sticky so it stays reachable while reading a long lesson.
+   ============================================================ */
+.topnav {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    height: var(--topnav-height);
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    padding: 0 var(--space-6);
+    gap: var(--space-7);
+}
+
+.topnav__brand {
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: -0.01em;
+}
+
+.topnav__subjects {
+    display: flex;
+    gap: var(--space-5);
+    font-size: 14px;
+}
+
+.topnav__link {
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    padding: var(--space-1) 0;
+    border-bottom: 2px solid transparent;
+}
+
+.topnav__link:hover {
+    color: var(--color-text);
+}
+
+.topnav__link--active {
+    color: var(--color-accent);
+    border-bottom-color: var(--color-accent);
+    font-weight: 500;
+}
+
+/* Mobile menu toggle — a hidden checkbox driving the sidebar's open
+   state via CSS sibling selectors. Visually hidden but still reachable
+   by keyboard (Tab + Space), unlike display:none which would remove it
+   from the tab order entirely. */
+.sidebar-toggle-checkbox {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+}
+
+.topnav__menu-btn {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.topnav__menu-btn:hover {
+    background: var(--color-surface);
+}
+
+.sidebar-toggle-checkbox:focus-visible ~ .topnav .topnav__menu-btn {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+}
+
+.sidebar-overlay {
+    display: none;
+}
+
+/* ============================================================
+   REGIONS 2 & 3 — SIDEBAR + MAIN CONTENT
+   ============================================================ */
+.layout {
+    display: flex;
+    align-items: flex-start;
+    min-height: calc(100vh - var(--topnav-height));
+}
+
+.sidebar {
+    position: sticky;
+    top: var(--topnav-height);
+    height: calc(100vh - var(--topnav-height));
+    overflow-y: auto;
+    width: var(--sidebar-width);
+    flex-shrink: 0;
+    background: var(--color-surface);
+    border-right: 1px solid var(--color-border);
+    padding: var(--space-5) var(--space-4);
+    font-size: 14px;
+}
+
+.sidebar__subject-title {
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-secondary);
+    padding: var(--space-1) var(--space-1) var(--space-3);
+}
+
+.sidebar__section {
+    margin-bottom: var(--space-1);
+}
+
+.sidebar__section-title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    cursor: pointer;
+    padding: var(--space-2) var(--space-1);
+    border-radius: var(--radius-sm);
+    font-weight: 500;
+    list-style: none;
+    user-select: none;
+    transition: background-color var(--transition-fast);
+}
+
+.sidebar__section-title::-webkit-details-marker {
+    display: none;
+}
+
+.sidebar__section-title:hover {
+    background: var(--color-bg);
+}
+
+.sidebar__chevron {
+    display: inline-flex;
+    color: var(--color-text-secondary);
+    transition: transform var(--transition-fast);
+    font-size: 10px;
+}
+
+.sidebar__section[open] > .sidebar__section-title .sidebar__chevron {
+    transform: rotate(90deg);
+}
+
+.sidebar__lessons {
+    list-style: none;
+    margin: 0;
+    padding: var(--space-1) 0 var(--space-2) var(--space-4);
+}
+
+.sidebar__lesson {
+    display: block;
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-sm);
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    font-size: 13px;
+    transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.sidebar__lesson:hover {
+    background: var(--color-bg);
+    color: var(--color-text);
+}
+
+.sidebar__lesson--active {
+    background: var(--color-accent-soft);
+    color: var(--color-accent);
+    font-weight: 500;
+}
+
+.content {
+    flex: 1;
+    padding: var(--space-8) var(--space-6);
+    display: flex;
+    justify-content: center;
+}
+
+/* ============================================================
+   LESSON CONTENT
+   Typography scale applied down through whatever Markdown
+   produces — headings, lists, blockquotes, tables, code —
+   even though our current placeholder lesson only exercises
+   a fraction of these.
+   ============================================================ */
+.lesson {
+    width: 100%;
+    max-width: var(--content-max-width);
+}
+
+.lesson__title {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    font-size: 34px;
+    letter-spacing: -0.01em;
+    margin: 0 0 var(--space-6) 0;
+}
+
+.lesson__body {
+    font-size: 16px;
+    line-height: 1.75;
+    color: var(--color-text);
+}
+
+.lesson__body p {
+    margin: 0 0 var(--space-4) 0;
+}
+
+.lesson__body h2 {
+    font-family: var(--font-serif);
+    font-size: 22px;
+    font-weight: 600;
+    margin: var(--space-7) 0 var(--space-3) 0;
+}
+
+.lesson__body h3 {
+    font-size: 17px;
+    font-weight: 600;
+    margin: var(--space-6) 0 var(--space-2) 0;
+}
+
+.lesson__body ul,
+.lesson__body ol {
+    margin: 0 0 var(--space-4) 0;
+    padding-left: var(--space-5);
+}
+
+.lesson__body li {
+    margin-bottom: var(--space-2);
+}
+
+.lesson__body blockquote {
+    margin: var(--space-4) 0;
+    padding: var(--space-3) var(--space-4);
+    border-left: 3px solid var(--color-accent);
+    background: var(--color-accent-soft);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    color: var(--color-text);
+}
+
+.lesson__body blockquote p:last-child {
+    margin-bottom: 0;
+}
+
+.lesson__body table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0 0 var(--space-5) 0;
+    font-size: 14px;
+}
+
+.lesson__body th,
+.lesson__body td {
+    text-align: left;
+    padding: var(--space-2) var(--space-3);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.lesson__body th {
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+/* Inline code — a small chip, distinct from block code below */
+.lesson__body code {
+    font-family: var(--font-mono);
+    font-size: 0.875em;
+    background: var(--color-inline-code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+/* Block code — its own dark reading surface */
+.lesson__body pre {
+    background: var(--color-code-bg);
+    color: var(--color-code-text);
+    border: 1px solid var(--color-code-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-4) var(--space-5);
+    margin: 0 0 var(--space-5) 0;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.lesson__body pre code {
+    background: none;
+    padding: 0;
+    color: inherit;
+    font-size: inherit;
+}
+
+/* ============================================================
+   PREVIOUS / NEXT — the signature component.
+   Two bordered cards, subtle lift on hover. This is the one
+   place the design takes a visible risk; everything else on
+   the page stays quiet by comparison.
+   ============================================================ */
+.lesson-nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+    margin-top: var(--space-8);
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--color-border);
+}
+
+.lesson-nav__card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding: var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: var(--color-text);
+    background: var(--color-bg);
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+}
+
+.lesson-nav__card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-card-hover);
+    border-color: var(--color-accent);
+}
+
+.lesson-nav__card--next {
+    text-align: right;
+    align-items: flex-end;
+}
+
+.lesson-nav__label {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+}
+
+.lesson-nav__title {
+    font-weight: 500;
+    font-size: 15px;
+}
+
+.lesson-nav__card--disabled {
+    color: var(--color-text-secondary);
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: none;
+    box-shadow: none;
+}
+
+.lesson-nav__position {
+    grid-column: 1 / -1;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    order: -1;
+    margin-bottom: var(--space-1);
+}
+
+/* ============================================================
+   RESPONSIVE — TABLET (≤1024px)
+   Sidebar narrows and content padding tightens; layout stays
+   three-region, nothing restructures yet.
+   ============================================================ */
+@media (max-width: 1024px) {
+    :root {
+        --sidebar-width: 240px;
+    }
+
+    .content {
+        padding: var(--space-6) var(--space-5);
+    }
+}
+
+/* ============================================================
+   RESPONSIVE — MOBILE (≤768px)
+   Sidebar becomes an off-canvas drawer (pure CSS, driven by the
+   hidden checkbox above). Previous/Next cards stack. Long tables
+   and code blocks scroll horizontally instead of overflowing.
+   ============================================================ */
+@media (max-width: 768px) {
+    .topnav {
+        padding: 0 var(--space-4);
+        gap: var(--space-3);
+    }
+
+    .topnav__menu-btn {
+        display: inline-flex;
+    }
+
+    .topnav__subjects {
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .layout {
+        position: relative;
+        overflow-x: hidden;
+    }
+
+    .sidebar {
+        position: fixed;
+        top: var(--topnav-height);
+        left: 0;
+        bottom: 0;
+        z-index: 20;
+        width: 82%;
+        max-width: 320px;
+        transform: translateX(-100%);
+        transition: transform var(--transition-fast);
+        box-shadow: var(--shadow-card-hover);
+    }
+
+    .sidebar-toggle-checkbox:checked ~ .layout .sidebar {
+        transform: translateX(0);
+    }
+
+    .sidebar-toggle-checkbox:checked ~ .sidebar-overlay {
+        display: block;
+        position: fixed;
+        inset: var(--topnav-height) 0 0 0;
+        background: rgba(20, 23, 31, 0.35);
+        z-index: 15;
+    }
+
+    .content {
+        padding: var(--space-5) var(--space-4);
+    }
+
+    .lesson__title {
+        font-size: 26px;
+    }
+
+    .lesson__body {
+        font-size: 15px;
+    }
+
+    .lesson__body h2 {
+        font-size: 19px;
+    }
+
+    .lesson-nav {
+        grid-template-columns: 1fr;
+    }
+
+    .lesson-nav__card--next {
+        text-align: left;
+        align-items: flex-start;
+    }
+
+    /* Wide tables scroll horizontally rather than overflowing the
+       viewport — no wrapper markup needed for this technique. */
+    .lesson__body table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+}

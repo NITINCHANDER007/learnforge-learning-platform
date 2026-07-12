@@ -1,0 +1,26 @@
+{% if subject_tree %}
+<nav aria-label="{{ subject_tree.title }} lessons">
+    <div class="sidebar__subject-title">{{ subject_tree.title }}</div>
+
+    {% for section in subject_tree.sections %}
+        {% set lesson_slugs = section.lessons | map(attribute='slug') | list %}
+        <details class="sidebar__section" {% if current_lesson in lesson_slugs %}open{% endif %}>
+            <summary class="sidebar__section-title">
+                <span class="sidebar__chevron">▶</span>
+                {{ section.title }}
+            </summary>
+            <ul class="sidebar__lessons">
+                {% for lesson in section.lessons %}
+                    <li>
+                        <a href="{{ url_for('main.view_lesson', subject_slug=subject_tree.slug, lesson_slug=lesson.slug) }}"
+                           class="sidebar__lesson{% if lesson.slug == current_lesson %} sidebar__lesson--active{% endif %}"
+                           {% if lesson.slug == current_lesson %}aria-current="page"{% endif %}>
+                            {{ lesson.title }}
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </details>
+    {% endfor %}
+</nav>
+{% endif %}

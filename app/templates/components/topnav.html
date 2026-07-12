@@ -1,0 +1,10 @@
+<div class="topnav__brand">LearnForge</div>
+<nav class="topnav__subjects" aria-label="Subjects">
+    {% for subject in subjects %}
+        <a href="{{ url_for('main.view_subject', subject_slug=subject.slug) }}"
+           class="topnav__link{% if subject.slug == current_subject %} topnav__link--active{% endif %}"
+           {% if subject.slug == current_subject %}aria-current="page"{% endif %}>
+            {{ subject.title }}
+        </a>
+    {% endfor %}
+</nav>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}LearnForge{% endblock %}</title>
+
+    <!-- IBM Plex family: Serif for lesson titles, Sans for UI, Mono for code.
+         Designed together as one family so the three feel cohesive. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:wght@600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body>
+
+    <a href="#main-content" class="skip-link">Skip to content</a>
+
+    <!-- Pure-CSS mobile menu: this checkbox's checked state drives the
+         sidebar's open/closed state via CSS sibling selectors (see
+         main.css). No JavaScript needed for the mobile nav toggle. -->
+    <input type="checkbox" id="sidebar-toggle" class="sidebar-toggle-checkbox">
+
+    <!-- Region 1: Top Navigation -->
+    <header class="topnav">
+        <label for="sidebar-toggle" class="topnav__menu-btn" aria-label="Toggle navigation menu">
+            <span aria-hidden="true">☰</span>
+        </label>
+        {% include "components/topnav.html" %}
+    </header>
+
+    <!-- Clicking outside the open mobile sidebar closes it -->
+    <label for="sidebar-toggle" class="sidebar-overlay" aria-hidden="true"></label>
+
+    <div class="layout">
+        <!-- Region 2: Left Sidebar -->
+        <aside class="sidebar">
+            {% include "components/sidebar.html" %}
+        </aside>
+
+        <!-- Region 3: Main Content -->
+        <main class="content" id="main-content">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+</body>
+</html>
