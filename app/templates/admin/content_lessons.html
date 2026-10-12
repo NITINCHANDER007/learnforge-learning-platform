@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}{{ section_folder }} Lessons · DataDrix{% endblock %}
+{% block content %}
+<div class="dash-layout">
+    {% include "admin/_nav.html" %}
+    <div>
+        <p><a href="{{ url_for('admin.view_subject_content', subject_slug=subject_slug) }}">&larr; {{ subject_slug }}</a></p>
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-2);">
+            <h1 class="lesson__title" style="font-size: 26px; margin-bottom: 0;">{{ section_folder }}</h1>
+            <div style="display: flex; gap: var(--space-2);">
+                <a href="{{ url_for('admin.section_media', subject_slug=subject_slug, section_folder=section_folder) }}" class="btn btn-secondary">Media Library</a>
+                <a href="{{ url_for('admin.reorder_lessons_view', subject_slug=subject_slug, section_folder=section_folder) }}" class="btn btn-secondary">Reorder</a>
+                <a href="{{ url_for('admin.new_lesson', subject_slug=subject_slug, section_folder=section_folder) }}" class="btn btn-primary">+ New Lesson</a>
+            </div>
+        </div>
+
+        <div class="dash-card" style="margin-top: var(--space-5);">
+            {% if lessons %}
+                <table class="dash-table">
+                    <tr><th>Title</th><th>Status</th><th>Actions</th></tr>
+                    {% for lesson in lessons %}
+                    <tr>
+                        <td><strong>{{ lesson.title }}</strong></td>
+                        <td>
+                            {% if lesson.published %}
+                                <span class="badge badge-student">Published</span>
+                            {% else %}
+                                <span class="badge badge-draft">Draft</span>
+                            {% endif %}
+                        </td>
+                        <td style="white-space: nowrap;">
+                            <a href="{{ url_for('admin.preview_lesson', subject_slug=subject_slug, section_folder=section_folder, filename=lesson.filename) }}"
+                               class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;">Preview</a>
+                            <a href="{{ url_for('admin.edit_lesson', subject_slug=subject_slug, section_folder=section_folder, filename=lesson.filename) }}"
+                               class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;">Edit</a>
+                            <form method="POST" action="{{ url_for('admin.duplicate_lesson', subject_slug=subject_slug, section_folder=section_folder, filename=lesson.filename) }}" style="display:inline;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;">Duplicate</button>
+                            </form>
+                            <a href="{{ url_for('admin.lesson_notes', subject_slug=subject_slug, lesson_slug=lesson.slug) }}"
+                               class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;">Notes</a>
+                            <form method="POST" action="{{ url_for('admin.toggle_publish', subject_slug=subject_slug, section_folder=section_folder, filename=lesson.filename) }}" style="display:inline;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;">
+                                    {{ 'Unpublish' if lesson.published else 'Publish' }}
+                                </button>
+                            </form>
+                            <form method="POST" action="{{ url_for('admin.delete_lesson', subject_slug=subject_slug, section_folder=section_folder, filename=lesson.filename) }}" style="display:inline;"
+                                  onsubmit="return confirm('Delete this lesson? This cannot be undone.');">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-danger" style="padding: 4px 8px; font-size: 12px;">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            {% else %}
+                <p style="color: var(--color-text-secondary);">No lessons yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

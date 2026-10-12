@@ -1,10 +1,12 @@
-# LearnForge — Content Authoring Guide
+# DataDrix — Content Authoring Guide
 
-This guide explains how to add and manage content on LearnForge without touching any application code. Everything below only involves editing files inside the `content/` folder.
+This guide explains how to add and manage content on DataDrix without touching any application code. Everything below only involves editing files inside the `content/` folder.
+
+> **Note:** Since Phase 2, an admin account can also manage subjects, sections, and lessons through **Admin → Content** in the dashboard, instead of editing files by hand. The admin panel writes the exact same file structure described below — publishing/unpublishing a lesson there simply moves its `.md` file between the section folder and a hidden `.drafts` subfolder. Everything in this guide remains accurate either way.
 
 ## 1. How content works (the big picture)
 
-LearnForge reads its entire site structure — subjects, sections, lessons, their order, and Previous/Next navigation — directly from the `content/` folder on every page load. There is no database and no admin panel. You manage the whole site with a text editor.
+DataDrix reads its entire site structure — subjects, sections, lessons, their order, and Previous/Next navigation — directly from the `content/` folder on every page load. There is no database and no admin panel. You manage the whole site with a text editor.
 
 ```
 content/
@@ -66,7 +68,7 @@ To reorder, rename the number prefixes. To insert a lesson between two existing 
 
 ## 6. How Previous/Next updates automatically
 
-You never edit Previous/Next links directly — they aren't stored anywhere. On every lesson page load, LearnForge:
+You never edit Previous/Next links directly — they aren't stored anywhere. On every lesson page load, DataDrix:
 
 1. Reads every section in the current subject, in order
 2. Reads every lesson in each section, in order

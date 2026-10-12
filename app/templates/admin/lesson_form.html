@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit Lesson' if filename else 'New Lesson' }} · DataDrix{% endblock %}
+{% block content %}
+<div class="dash-layout">
+    {% include "admin/_nav.html" %}
+    <div style="max-width: 900px;">
+        <h1 class="lesson__title" style="font-size: 26px;">{{ 'Edit Lesson' if filename else 'New Lesson' }}</h1>
+
+        <form method="POST" enctype="multipart/form-data" novalidate id="lesson-builder-form">
+            {{ form.hidden_tag() }}
+
+            <div class="form-field">
+                {{ form.title.label }}
+                {{ form.title() }}
+                {% if form.title.errors %}<div class="form-errors">{{ form.title.errors[0] }}</div>{% endif %}
+            </div>
+
+            <div class="lb-tabs">
+                <button type="button" class="lb-tab lb-tab--active" data-panel="lb-panel-builder">Visual Builder</button>
+                <button type="button" class="lb-tab" data-panel="lb-panel-source">Markdown Source</button>
+                <button type="button" class="lb-tab" data-panel="lb-panel-preview">Live Preview</button>
+            </div>
+
+            <div id="lb-panel-builder" class="lb-panel lb-panel--active">
+                <div id="lesson-builder-blocks" class="lb-blocks"></div>
+            </div>
+
+            <div id="lb-panel-source" class="lb-panel">
+                <div class="form-field">
+                    {{ form.body.label }}
+                    {{ form.body(id="lesson-body-textarea") }}
+                    {% if form.body.errors %}<div class="form-errors">{{ form.body.errors[0] }}</div>{% endif %}
+                    <p style="font-size: 12px; color: var(--color-text-secondary); margin-top: 4px;">
+                        Edits here re-sync back into the Visual Builder automatically. See CONTENT_GUIDE.md for the full Markdown reference.
+                    </p>
+                </div>
+            </div>
+
+            <div id="lb-panel-preview" class="lb-panel">
+                <article class="lesson lb-preview-article">
+                    <div class="lesson__body" id="lesson-builder-preview"></div>
+                </article>
+            </div>
+
+            <div class="form-field">
+                {{ form.media.label }}
+                {{ form.media() }}
+                {% if form.media.errors %}<div class="form-errors">{{ form.media.errors[0] }}</div>{% endif %}
+                <p style="font-size: 12px; color: var(--color-text-secondary); margin-top: 4px;">
+                    Uploading here saves the file into this lesson's images/files/videos folder — after saving,
+                    a ready-to-paste Markdown snippet is shown so you can insert it into the content above.
+                </p>
+            </div>
+
+            <div style="display: flex; gap: var(--space-3);">
+                <button type="submit" name="action" value="draft" class="btn btn-secondary">Save Draft</button>
+                <button type="submit" name="action" value="publish" class="btn btn-primary">Publish</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/lesson_builder.js') }}" defer></script>
+{% endblock %}

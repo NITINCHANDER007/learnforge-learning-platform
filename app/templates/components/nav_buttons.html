@@ -6,24 +6,24 @@
     {% if lesson_nav.previous %}
         <a class="lesson-nav__card lesson-nav__card--prev"
            href="{{ url_for('main.view_lesson', subject_slug=subject_tree.slug, lesson_slug=lesson_nav.previous.slug) }}">
-            <span class="lesson-nav__label">← Previous</span>
+            <span class="lesson-nav__label"><span class="lesson-nav__arrow lesson-nav__arrow--prev">←</span> Previous</span>
             <span class="lesson-nav__title">{{ lesson_nav.previous.title }}</span>
         </a>
     {% else %}
         <span class="lesson-nav__card lesson-nav__card--disabled" aria-disabled="true">
-            <span class="lesson-nav__label">← Previous</span>
+            <span class="lesson-nav__label"><span class="lesson-nav__arrow lesson-nav__arrow--prev">←</span> Previous</span>
         </span>
     {% endif %}
 
     {% if lesson_nav.next %}
         <a class="lesson-nav__card lesson-nav__card--next"
            href="{{ url_for('main.view_lesson', subject_slug=subject_tree.slug, lesson_slug=lesson_nav.next.slug) }}">
-            <span class="lesson-nav__label">Next →</span>
+            <span class="lesson-nav__label">Next <span class="lesson-nav__arrow lesson-nav__arrow--next">→</span></span>
             <span class="lesson-nav__title">{{ lesson_nav.next.title }}</span>
         </a>
     {% else %}
         <span class="lesson-nav__card lesson-nav__card--next lesson-nav__card--disabled" aria-disabled="true">
-            <span class="lesson-nav__label">Next →</span>
+            <span class="lesson-nav__label">Next <span class="lesson-nav__arrow lesson-nav__arrow--next">→</span></span>
         </span>
     {% endif %}
 

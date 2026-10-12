@@ -5,3 +5,7 @@ venv/
 instance/
 .env
 .DS_Store
+*.db
+/uploads/
+.pytest_cache/
+

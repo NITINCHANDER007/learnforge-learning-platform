@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Bookmarks · DataDrix{% endblock %}
+{% block content %}
+<div class="dash-layout">
+    {% include "dashboard/_nav.html" %}
+
+    <div>
+        <h1 class="lesson__title" style="font-size: 26px;">Your Bookmarks</h1>
+
+        <div class="dash-card">
+            {% if bookmarks %}
+                <table class="dash-table">
+                    <tr><th>Lesson</th><th>Subject</th><th></th></tr>
+                    {% for b in bookmarks %}
+                        <tr>
+                            <td><a href="{{ url_for('main.view_lesson', subject_slug=b.subject_slug, lesson_slug=b.lesson_slug) }}">{{ b.title }}</a></td>
+                            <td style="color: var(--color-text-secondary);">{{ b.subject_slug }}</td>
+                            <td>
+                                <form method="POST" action="{{ url_for('dashboard.toggle_bookmark') }}">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <input type="hidden" name="subject_slug" value="{{ b.subject_slug }}">
+                                    <input type="hidden" name="lesson_slug" value="{{ b.lesson_slug }}">
+                                    <button type="submit" class="btn btn-secondary" style="padding: 4px 12px; font-size: 12px;">Remove</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            {% else %}
+                <p style="color: var(--color-text-secondary);">No bookmarks yet — bookmark a lesson to see it here.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
