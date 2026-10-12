@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: datadrix-learning-platform
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: flask db upgrade && gunicorn wsgi:app --bind 0.0.0.0:$PORT
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: datadrix-db
+          property: connectionString
+
+databases:
+  - name: datadrix-db
+    plan: free
+    databaseName: datadrix
+    user: datadrix
