@@ -1,7 +1,0 @@
-<nav class="dash-nav">
-    <a href="{{ url_for('admin.dashboard') }}" class="{{ 'active' if request.endpoint == 'admin.dashboard' }}">Overview</a>
-    <a href="{{ url_for('admin.users') }}" class="{{ 'active' if request.endpoint in ('admin.users', 'admin.edit_user', 'admin.user_progress') }}">Users</a>
-    <a href="{{ url_for('admin.content_home') }}" class="{{ 'active' if 'content' in request.endpoint }}">Content</a>
-    <a href="{{ url_for('admin.analytics') }}" class="{{ 'active' if request.endpoint == 'admin.analytics' }}">Analytics</a>
-    <a href="{{ url_for('admin.all_notes') }}" class="{{ 'active' if request.endpoint == 'admin.all_notes' }}">User Notes</a>
-</nav>

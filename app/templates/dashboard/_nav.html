@@ -1,7 +1,0 @@
-<nav class="dash-nav">
-    <a href="{{ url_for('dashboard.home') }}" class="{{ 'active' if request.endpoint == 'dashboard.home' }}">Overview</a>
-    <a href="{{ url_for('dashboard.profile') }}" class="{{ 'active' if request.endpoint == 'dashboard.profile' }}">Profile</a>
-    <a href="{{ url_for('dashboard.change_password') }}" class="{{ 'active' if request.endpoint == 'dashboard.change_password' }}">Password</a>
-    <a href="{{ url_for('dashboard.bookmarks') }}" class="{{ 'active' if request.endpoint == 'dashboard.bookmarks' }}">Bookmarks</a>
-    <a href="{{ url_for('dashboard.notes') }}" class="{{ 'active' if request.endpoint in ['dashboard.notes', 'dashboard.new_note', 'dashboard.edit_note'] }}">My Notes</a>
-</nav>
