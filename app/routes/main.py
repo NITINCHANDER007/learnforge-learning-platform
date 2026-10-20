@@ -141,38 +141,40 @@ def view_lesson(subject_slug, lesson_slug):
     is_bookmarked = False
     is_completed = False
     completed_lessons = set()
-    if current_user.is_authenticated:
-        lesson_path = f"{subject_slug}/{lesson_slug}"
-        is_bookmarked = Bookmark.query.filter_by(
-            user_id=current_user.id, lesson_path=lesson_path
-        ).first() is not None
-        is_completed = Progress.query.filter_by(
-            user_id=current_user.id, lesson_path=lesson_path
-        ).first() is not None
+    try:
+        if current_user.is_authenticated:
+            lesson_path = f"{subject_slug}/{lesson_slug}"
+            is_bookmarked = Bookmark.query.filter_by(
+                user_id=current_user.id, lesson_path=lesson_path
+            ).first() is not None
+            is_completed = Progress.query.filter_by(
+                user_id=current_user.id, lesson_path=lesson_path
+            ).first() is not None
 
-        # Every completed lesson slug within this subject, for the
-        # sidebar's completion checkmarks. Filtered by a "subject/"
-        # prefix match, then the slug is split off in Python — simpler
-        # than a SQL LIKE pattern, and this list is always small (one
-        # subject's lesson count, not the whole site's).
-        subject_progress = Progress.query.filter(
-            Progress.user_id == current_user.id,
-            Progress.lesson_path.like(f"{subject_slug}/%"),
-        ).all()
-        completed_lessons = {p.lesson_path.split("/", 1)[1] for p in subject_progress}
+            # Every completed lesson slug within this subject, for the
+            # sidebar's completion checkmarks.
+            subject_progress = Progress.query.filter(
+                Progress.user_id == current_user.id,
+                Progress.lesson_path.like(f"{subject_slug}/%"),
+            ).all()
+            completed_lessons = {p.lesson_path.split("/", 1)[1] for p in subject_progress}
+    except Exception:
+        pass
 
     # Official (admin-authored) notes for this lesson — public, shown
-    # to every visitor regardless of login state. Deliberately a
-    # separate query against LessonNote, never against the private
-    # student Note model.
+    # to every visitor regardless of login state.
     lesson_path = f"{subject_slug}/{lesson_slug}"
-    official_notes = (
-        LessonNote.query.filter_by(lesson_path=lesson_path, published=True)
-        .order_by(LessonNote.pinned.desc(), LessonNote.sort_order, LessonNote.created_at)
-        .all()
-    )
-    for note in official_notes:
-        note.body_html = markdown.markdown(note.body, extensions=["fenced_code", "tables"])
+    official_notes = []
+    try:
+        official_notes = (
+            LessonNote.query.filter_by(lesson_path=lesson_path, published=True)
+            .order_by(LessonNote.pinned.desc(), LessonNote.sort_order, LessonNote.created_at)
+            .all()
+        )
+        for note in official_notes:
+            note.body_html = markdown.markdown(note.body, extensions=["fenced_code", "tables"])
+    except Exception:
+        official_notes = []
 
     return render_template(
         "lesson.html",

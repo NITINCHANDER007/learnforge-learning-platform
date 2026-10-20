@@ -33,6 +33,12 @@ def create_app():
     # tries to query the database or generate a migration.
     from app import models  # noqa: F401
 
+    with app.app_context():
+        try:
+            db.create_all()
+        except Exception as e:
+            app.logger.warning(f"db.create_all() warning: {e}")
+
     # Blueprints are Flask's way of grouping related routes together.
     # Registering here (not at import time) is what avoids circular imports.
     from app.routes.main import main_bp
