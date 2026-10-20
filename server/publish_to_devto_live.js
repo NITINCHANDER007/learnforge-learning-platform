@@ -4,10 +4,25 @@ const SeoSettings = require('./models/SeoSettings');
 const { generateUniqueBlogPost } = require('./services/seoGeneratorService');
 const { publishToDevTo } = require('./services/publisherService');
 
-async function publishLiveToDevTo() {
+const SUBJECT_TAGS = {
+  sql: ['sql', 'database', 'postgres', 'programming'],
+  python: ['python', 'programming', 'webdev', 'technology'],
+  'machine-learning': ['machinelearning', 'ai', 'datascience', 'python'],
+  pandas: ['pandas', 'datascience', 'python', 'dataanalysis'],
+  numpy: ['numpy', 'python', 'datascience', 'programming'],
+  javascript: ['javascript', 'webdev', 'programming', 'beginners'],
+  flask: ['flask', 'python', 'webdev', 'api'],
+  'web-scraping': ['webscraping', 'python', 'automation', 'datascience'],
+  'power-bi': ['powerbi', 'analytics', 'businessintelligence', 'data'],
+  excel: ['excel', 'analytics', 'dataanalysis', 'productivity']
+};
+
+async function publishLiveToDevTo(subjectArg) {
+  const targetSubject = (subjectArg || process.argv[2] || 'sql').toLowerCase();
+
   try {
-    console.log('Generating fresh high-quality article for Dev.to...');
-    const generated = await generateUniqueBlogPost('python', {
+    console.log(`Generating fresh high-quality article for Dev.to (${targetSubject})...`);
+    const generated = await generateUniqueBlogPost(targetSubject, {
       websiteBaseUrl: 'https://learnforge-learning-platform.onrender.com',
       forceProvider: 'smart_template'
     });
@@ -17,11 +32,13 @@ async function publishLiveToDevTo() {
     console.log('Backlinks count:', generated.backlinks.length);
 
     // Clean Dev.to tags (max 4, alphanumeric only)
-    const cleanTags = (generated.tags || ['python', 'programming', 'webdev', 'technology'])
+    const subjectTags = SUBJECT_TAGS[targetSubject] || ['programming', 'technology', 'webdev'];
+    const cleanTags = subjectTags
       .map(t => t.toLowerCase().replace(/[^a-z0-9]/g, ''))
       .filter(t => t.length >= 1 && t.length <= 30)
       .slice(0, 4);
 
+    console.log('Tags:', cleanTags);
     console.log('Publishing to Dev.to via official API...');
     const result = await publishToDevTo({
       title: generated.title,
@@ -49,7 +66,7 @@ async function publishLiveToDevTo() {
         slug: generated.slug,
         metaDescription: generated.metaDescription,
         targetKeywords: cleanTags,
-        targetSubject: 'python',
+        targetSubject: targetSubject,
         topicAngle: generated.topicAngle,
         contentMarkdown: generated.contentMarkdown,
         contentHtml: generated.contentHtml,

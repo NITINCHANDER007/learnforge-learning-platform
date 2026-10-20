@@ -352,6 +352,20 @@ function generateSmartTemplateArticle(subjectSlug, options = {}) {
     }
   ];
 
+  const langMap = {
+    sql: 'sql',
+    javascript: 'javascript',
+    python: 'python',
+    flask: 'python',
+    pandas: 'python',
+    numpy: 'python',
+    'machine-learning': 'python',
+    'web-scraping': 'python',
+    'power-bi': 'dax',
+    excel: 'text'
+  };
+  const snippetLang = langMap[subjectSlug] || (subjectSlug === 'sql' ? 'sql' : 'python');
+
   const markdown = `# ${selectedAngle.titlePrefix}
 
 > **Executive Summary:** Modern engineering demands rigorous command over foundational concepts. This comprehensive technical guide unpacks essential patterns, practical implementations, and industry-standard workflows for **${subjectName}**, complete with runnable code examples and actionable takeaways.
@@ -382,7 +396,7 @@ When setting up your engineering workflow, clean abstraction boundaries prevent 
 
 Here is a battle-tested implementation illustrating these principles in practice:
 
-\`\`\`${subjectSlug === 'sql' ? 'sql' : 'python'}
+\`\`\`${snippetLang}
 ${meta.codeSnippet}
 \`\`\`
 
