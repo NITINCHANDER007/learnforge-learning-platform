@@ -85,7 +85,7 @@ async function getTransporter() {
  * Send an email via server
  */
 async function sendEmail({ to, subject, html, text }) {
-  const from = process.env.FROM_EMAIL || '"DataDrix Platform" <no-reply@datadrix.com>';
+  const from = process.env.FROM_EMAIL || '"LearnForge Platform" <no-reply@learnforge.com>';
   const mailTransporter = await getTransporter();
 
   const record = {
@@ -221,13 +221,13 @@ async function sendWelcomeNotification({ name, email, phone }) {
     const html = `
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0a0d14; color: #f8fafc; border-radius: 12px; overflow: hidden; border: 1px solid #1e293b;">
         <div style="background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); padding: 32px 24px; text-align: center;">
-          <h1 style="color: #ffffff; margin: 0; font-size: 26px; font-weight: 800;">⚡ DataDrix Academy</h1>
+          <h1 style="color: #ffffff; margin: 0; font-size: 26px; font-weight: 800;">⚡ LearnForge Academy</h1>
           <p style="color: rgba(255,255,255,0.9); margin: 6px 0 0; font-size: 15px;">Welcome to Interactive Learning</p>
         </div>
         <div style="padding: 28px 24px;">
           <h2 style="color: #ffffff; font-size: 20px; margin-top: 0;">Welcome aboard, ${name}! 🎉</h2>
           <p style="color: #94a3b8; line-height: 1.6; font-size: 15px;">
-            Your DataDrix account is officially active. You now have full access to our curated curriculum, interactive WebAssembly playground, coding practice challenges, and interview prep corner.
+            Your LearnForge account is officially active. You now have full access to our curated curriculum, interactive WebAssembly playground, coding practice challenges, and interview prep corner.
           </p>
           <div style="background: #101622; border-left: 4px solid #6366f1; padding: 14px 18px; margin: 20px 0; border-radius: 4px;">
             <p style="margin: 0; font-size: 14px; color: #cbd5e1;">
@@ -241,17 +241,17 @@ async function sendWelcomeNotification({ name, email, phone }) {
           </div>
           <hr style="border: 0; border-top: 1px solid #1e293b; margin: 24px 0;" />
           <p style="color: #64748b; font-size: 12px; margin: 0; text-align: center;">
-            This email was sent from your DataDrix server. If you did not create this account, please ignore this email.
+            This email was sent from your LearnForge server. If you did not create this account, please ignore this email.
           </p>
         </div>
       </div>
     `;
-    const text = `Welcome to DataDrix, ${name}! Your account is now active. Access your curriculum and exercises at ${clientUrl}/dashboard.`;
-    results.email = await sendEmail({ to: email, subject: '🎉 Welcome to DataDrix Academy!', html, text });
+    const text = `Welcome to LearnForge, ${name}! Your account is now active. Access your curriculum and exercises at ${clientUrl}/dashboard.`;
+    results.email = await sendEmail({ to: email, subject: '🎉 Welcome to LearnForge Academy!', html, text });
   }
 
   if (phone) {
-    const message = `⚡ DataDrix: Welcome ${name}! Your student account is active. Explore Python, Practice Hub & CS Interview Prep at ${clientUrl}`;
+    const message = `⚡ LearnForge: Welcome ${name}! Your student account is active. Explore Python, Practice Hub & CS Interview Prep at ${clientUrl}`;
     results.sms = await sendSms({ to: phone, message });
   }
 
@@ -267,9 +267,9 @@ async function sendLoginAlert({ name, email, phone, ip, userAgent }) {
   if (email) {
     const html = `
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 560px; margin: 0 auto; background: #0a0d14; color: #f8fafc; border-radius: 12px; border: 1px solid #1e293b; padding: 24px;">
-        <h2 style="color: #818cf8; margin-top: 0; font-size: 18px;">🔒 DataDrix Security Alert: New Sign-In</h2>
+        <h2 style="color: #818cf8; margin-top: 0; font-size: 18px;">🔒 LearnForge Security Alert: New Sign-In</h2>
         <p style="color: #cbd5e1; font-size: 14px; line-height: 1.5;">
-          Hello ${name}, a new sign-in was detected for your DataDrix account:
+          Hello ${name}, a new sign-in was detected for your LearnForge account:
         </p>
         <div style="background: #101622; padding: 14px 18px; border-radius: 8px; margin: 16px 0; font-size: 13px; color: #94a3b8; line-height: 1.7;">
           • <strong>Time:</strong> ${time}<br/>
@@ -281,12 +281,12 @@ async function sendLoginAlert({ name, email, phone, ip, userAgent }) {
         </p>
       </div>
     `;
-    const text = `DataDrix Security: New login detected for ${name} at ${time} from IP ${ip || 'unknown'}. If not you, reset your password at ${clientUrl}/forgot-password.`;
-    results.email = await sendEmail({ to: email, subject: '🔒 Security Alert: New Sign-In to DataDrix', html, text });
+    const text = `LearnForge Security: New login detected for ${name} at ${time} from IP ${ip || 'unknown'}. If not you, reset your password at ${clientUrl}/forgot-password.`;
+    results.email = await sendEmail({ to: email, subject: '🔒 Security Alert: New Sign-In to LearnForge', html, text });
   }
 
   if (phone) {
-    const message = `DataDrix Security: New sign-in detected on your account at ${time}. If this wasn't you, reset password at ${clientUrl}/forgot-password`;
+    const message = `LearnForge Security: New sign-in detected on your account at ${time}. If this wasn't you, reset password at ${clientUrl}/forgot-password`;
     results.sms = await sendSms({ to: phone, message });
   }
 
@@ -308,7 +308,7 @@ async function sendPasswordResetNotification({ name, email, phone, token, otp })
         <div style="padding: 24px;">
           <p style="color: #cbd5e1; font-size: 15px;">Hello ${name},</p>
           <p style="color: #94a3b8; line-height: 1.6; font-size: 14px;">
-            We received a request to reset your DataDrix account password. You can reset your password using the secure button below or by using your 6-digit verification code.
+            We received a request to reset your LearnForge account password. You can reset your password using the secure button below or by using your 6-digit verification code.
           </p>
           
           <div style="text-align: center; margin: 24px 0;">
@@ -317,7 +317,7 @@ async function sendPasswordResetNotification({ name, email, phone, token, otp })
             </a>
           </div>
 
-          <div style="background: #101622; border: 1px dashed #6366f1; border-radius: 8px; padding: 14px; text-align: center; margin: 20px 0;">
+          <div style="background: #101622; border-left: 4px solid #6366f1; border-radius: 8px; padding: 14px; text-align: center; margin: 20px 0;">
             <div style="font-size: 12px; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Or Enter Verification Code (OTP)</div>
             <div style="font-size: 28px; font-weight: 800; letter-spacing: 6px; color: #38bdf8; margin-top: 6px;">${otp}</div>
           </div>
@@ -328,12 +328,12 @@ async function sendPasswordResetNotification({ name, email, phone, token, otp })
         </div>
       </div>
     `;
-    const text = `DataDrix Password Reset: Reset your password at ${resetUrl} or enter OTP code: ${otp}. This code expires in 1 hour.`;
-    results.email = await sendEmail({ to: email, subject: '🔑 Reset Your DataDrix Password', html, text });
+    const text = `LearnForge Password Reset: Reset your password at ${resetUrl} or enter OTP code: ${otp}. This code expires in 1 hour.`;
+    results.email = await sendEmail({ to: email, subject: '🔑 Reset Your LearnForge Password', html, text });
   }
 
   if (phone) {
-    const message = `DataDrix: Your password reset verification code is: ${otp}. Valid for 1 hour. Reset link: ${resetUrl}`;
+    const message = `LearnForge: Your password reset verification code is: ${otp}. Valid for 1 hour. Reset link: ${resetUrl}`;
     results.sms = await sendSms({ to: phone, message });
   }
 
@@ -351,19 +351,19 @@ async function sendPasswordChangedConfirmation({ name, email, phone }) {
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 560px; margin: 0 auto; background: #0a0d14; color: #f8fafc; border-radius: 12px; border: 1px solid #1e293b; padding: 24px;">
         <h2 style="color: #10b981; margin-top: 0; font-size: 18px;">✅ Password Successfully Updated</h2>
         <p style="color: #cbd5e1; font-size: 14px; line-height: 1.6;">
-          Hello ${name}, your DataDrix account password was successfully updated on ${time}.
+          Hello ${name}, your LearnForge account password was successfully updated on ${time}.
         </p>
         <p style="color: #94a3b8; font-size: 13px;">
           You can now <a href="${clientUrl}/login" style="color: #818cf8; text-decoration: underline;">log in with your new password</a>.
         </p>
       </div>
     `;
-    const text = `DataDrix: Your account password was successfully changed at ${time}.`;
-    results.email = await sendEmail({ to: email, subject: '✅ Your DataDrix Password Has Been Changed', html, text });
+    const text = `LearnForge: Your account password was successfully changed at ${time}.`;
+    results.email = await sendEmail({ to: email, subject: '✅ Your LearnForge Password Has Been Changed', html, text });
   }
 
   if (phone) {
-    const message = `DataDrix Security: Your password was successfully updated at ${time}.`;
+    const message = `LearnForge Security: Your password was successfully updated at ${time}.`;
     results.sms = await sendSms({ to: phone, message });
   }
 

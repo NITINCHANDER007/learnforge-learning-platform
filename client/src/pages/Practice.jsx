@@ -332,7 +332,7 @@ export default function Practice() {
         <div className="hero-top-row">
           <div className="hero-title-area">
             <div className="datadrix-badge">
-              <Zap size={15} /> DATADRIX CODING ARENA & SDE SUITE
+              <Zap size={15} /> LEARNFORGE CODING ARENA & SDE SUITE
             </div>
             <h1>
               Practice <span className="text-gradient">Algorithms & DSA</span>
@@ -348,7 +348,7 @@ export default function Practice() {
                 onClick={() => setShowCheatSheet(true)}
               >
                 <BookOpen size={14} color="#818cf8" />
-                <span>DataDrix Big-O & DSA Patterns</span>
+                <span>LearnForge Big-O & DSA Patterns</span>
               </button>
               <button
                 type="button"
@@ -718,7 +718,7 @@ export default function Practice() {
       {activeTab === 'tracks' && (
         <div className="tracks-container">
           <div className="section-intro">
-            <h2>DataDrix Curated <span className="text-gradient">SDE Preparation Tracks</span></h2>
+            <h2>LearnForge Curated <span className="text-gradient">SDE Preparation Tracks</span></h2>
             <p>Targeted problem sheets carefully designed for FAANG, product giants, and rapid interview revision.</p>
           </div>
 
@@ -1100,7 +1100,7 @@ export default function Practice() {
               <div className="section-intro">
                 <div className="intro-badge">
                   <Trophy size={14} color="#f59e0b" />
-                  <span>DATADRIX COMPETITIVE ARENA & HIRING CHALLENGES</span>
+                  <span>LEARNFORGE COMPETITIVE ARENA & HIRING CHALLENGES</span>
                 </div>
                 <h2>Weekly Rated Contests & Job-A-Thon Fast-Tracks</h2>
                 <p>
@@ -1573,7 +1573,7 @@ export default function Practice() {
             <div className="modal-header">
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <BookOpen size={20} color="#818cf8" />
-                <h3>DataDrix Big-O Complexity & 14 Universal DSA Patterns</h3>
+                <h3>LearnForge Big-O Complexity & 14 Universal DSA Patterns</h3>
               </div>
               <button
                 type="button"

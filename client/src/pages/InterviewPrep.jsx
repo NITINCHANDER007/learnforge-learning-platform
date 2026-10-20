@@ -147,7 +147,7 @@ export default function InterviewPrep() {
       {/* Header */}
       <div style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '24px', marginBottom: '28px' }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 14px', background: 'rgba(99, 102, 241, 0.15)', color: '#818cf8', borderRadius: '999px', fontSize: '12px', fontWeight: 700, marginBottom: '14px', border: '1px solid rgba(99, 102, 241, 0.3)' }}>
-          <Sparkles size={14} /> DATADRIX INTERVIEW CORNER
+          <Sparkles size={14} /> LEARNFORGE INTERVIEW CORNER
         </div>
         <h1 style={{ fontSize: '32px', fontWeight: 800, margin: '0 0 10px', color: 'var(--text-primary)' }}>
           Technical Interview <span className="text-gradient">Corner</span>

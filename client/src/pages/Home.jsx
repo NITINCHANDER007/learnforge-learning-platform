@@ -15,7 +15,8 @@ import {
   FileText,
   Trophy,
   Target,
-  Bot
+  Bot,
+  Play
 } from 'lucide-react';
 import { SUBJECT_CATEGORIES, SUBJECT_METADATA } from '../components/Navbar';
 
@@ -59,41 +60,76 @@ export default function Home() {
         <div className="hero-glow"></div>
         <div className="hero-content">
 
-          <h1 className="hero-title">
-            Master Programming & Data Science <br />
-            <span className="text-gradient">Through Interactive Practice</span>
-          </h1>
+          <div className="hero-grid">
+            <div className="hero-inner">
+              <div className="hero-badge">
+                <span className="hero-badge-dot"></span>
+                <span>14 Subjects · 166 Interactive Lessons · 100% Free</span>
+              </div>
 
-          <p className="hero-subtitle">
-            From Python fundamentals and SQL analytics to Machine Learning and full-stack web development.
-            Bite-sized structured lessons, DataDrix coding arena, virtual contests, and instant multi-language execution.
-          </p>
+              <h1 className="hero-title">
+                Master Programming. <br />
+                <span className="text-gradient">One Lesson at a Time.</span>
+              </h1>
 
-          <div className="hero-actions">
-            {stats?.continueLearning ? (
-              <Link
-                to={`/${stats.continueLearning.subjectSlug}/${stats.continueLearning.lessonSlug}`}
-                className="btn btn-primary btn-lg"
-              >
-                <span>Continue: {stats.continueLearning.title}</span>
-                <ArrowRight size={18} />
-              </Link>
-            ) : (
-              <Link to={`/${firstSubjectSlug}`} className="btn btn-primary btn-lg">
-                <span>Start Learning Now</span>
-                <ArrowRight size={18} />
-              </Link>
-            )}
+              <p className="hero-subtitle">
+                Fast, distraction-free curriculum covering Python, SQL, Machine Learning, Data Analytics, Web Development, and more. Built for how engineers actually learn.
+              </p>
 
-            <Link to="/practice" className="btn btn-primary btn-lg practice-hero-btn">
-              <Trophy size={18} color="#eab308" />
-              <span>Practice Coding Arena</span>
-            </Link>
+              <div className="hero-actions">
+                {stats?.continueLearning ? (
+                  <Link
+                    to={`/${stats.continueLearning.subjectSlug}/${stats.continueLearning.lessonSlug}`}
+                    className="btn btn-primary btn-lg"
+                  >
+                    <span>Continue: {stats.continueLearning.title}</span>
+                    <ArrowRight size={18} />
+                  </Link>
+                ) : (
+                  <Link to={`/${firstSubjectSlug}`} className="btn btn-primary btn-lg">
+                    <span>Start Learning Free</span>
+                    <ArrowRight size={18} />
+                  </Link>
+                )}
 
-            <Link to="/playground" className="btn btn-secondary btn-lg">
-              <Code2 size={18} />
-              <span>Code Playground</span>
-            </Link>
+                <Link to="/playground" className="btn btn-secondary btn-lg">
+                  <Code2 size={18} />
+                  <span>Code Playground</span>
+                </Link>
+
+                <Link to="/practice" className="btn btn-primary btn-lg practice-hero-btn">
+                  <Trophy size={18} color="#eab308" />
+                  <span>Practice Arena</span>
+                </Link>
+              </div>
+            </div>
+
+            <div className="hero-preview">
+              <div className="hero-code-window glass-panel">
+                <div className="hero-code-window__header">
+                  <div className="hero-code-window__dots">
+                    <span className="dot dot--red"></span>
+                    <span className="dot dot--yellow"></span>
+                    <span className="dot dot--green"></span>
+                  </div>
+                  <span className="hero-code-window__title">learn.py — LearnForge Interactive Engine</span>
+                  <Link to="/playground" className="hero-code-window__run-btn">
+                    <Play size={11} fill="currentColor" /> Run Live
+                  </Link>
+                </div>
+                <pre className="hero-code-window__body">
+                  <code>
+                    <span className="tok-comment"># Welcome to LearnForge</span>{'\n'}
+                    <span className="tok-kw">from</span> learnforge <span className="tok-kw">import</span> curriculum{'\n\n'}
+                    student = {"{"}"role": "Builder", "streak": 1{"}"}{'\n'}
+                    paths = ["Python", "SQL", "Machine Learning"]{'\n\n'}
+                    <span className="tok-kw">for</span> track <span className="tok-kw">in</span> paths:{'\n'}
+                    {'    '}print(f"✨ Mastering {"{"}track{"}"} with hands-on code..."){'\n\n'}
+                    print("🎓 100% verified mastery unlocked!")
+                  </code>
+                </pre>
+              </div>
+            </div>
           </div>
 
           {/* Quick Metrics Banner */}
@@ -291,20 +327,58 @@ export default function Home() {
         .hero-content {
           position: relative;
           z-index: 1;
-          max-width: 900px;
+          max-width: 1200px;
           margin: 0 auto;
           display: flex;
           flex-direction: column;
           align-items: center;
+          gap: 40px;
+        }
+
+        .hero-grid {
+          display: grid;
+          grid-template-columns: 1.15fr 0.85fr;
+          gap: 40px;
+          align-items: center;
+          width: 100%;
+        }
+
+        .hero-inner {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          text-align: left;
+        }
+
+        .hero-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 6px 14px;
+          background: rgba(99, 102, 241, 0.12);
+          border: 1px solid rgba(99, 102, 241, 0.28);
+          border-radius: 999px;
+          font-size: 0.82rem;
+          font-weight: 600;
+          color: #818cf8;
+          margin-bottom: 20px;
+        }
+
+        .hero-badge-dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: #10b981;
+          box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
         }
         
         .hero-title {
           font-family: var(--font-display);
-          font-size: 3.4rem;
+          font-size: 3.2rem;
           font-weight: 800;
           line-height: 1.15;
           letter-spacing: -0.03em;
-          margin-bottom: 20px;
+          margin-bottom: 18px;
         }
         .text-gradient {
           background: var(--gradient-brand);
@@ -312,18 +386,122 @@ export default function Home() {
           -webkit-text-fill-color: transparent;
         }
         .hero-subtitle {
-          font-size: 1.15rem;
+          font-size: 1.1rem;
           color: var(--text-secondary);
-          max-width: 720px;
+          max-width: 600px;
           line-height: 1.6;
-          margin-bottom: 36px;
+          margin-bottom: 30px;
         }
         .hero-actions {
           display: flex;
-          gap: 16px;
-          margin-bottom: 50px;
+          gap: 14px;
           flex-wrap: wrap;
+          justify-content: flex-start;
+        }
+
+        /* Hero Code Window Preview */
+        .hero-preview {
+          perspective: 1000px;
+          display: flex;
           justify-content: center;
+        }
+
+        .hero-code-window {
+          width: 100%;
+          max-width: 480px;
+          background: #070a10;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 12px;
+          overflow: hidden;
+          box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5), 0 0 25px rgba(99, 102, 241, 0.18);
+          text-align: left;
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .hero-code-window:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 25px 50px -10px rgba(0, 0, 0, 0.65), 0 0 30px rgba(99, 102, 241, 0.28);
+        }
+
+        .hero-code-window__header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 10px 14px;
+          background: #0f1420;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .hero-code-window__dots {
+          display: flex;
+          gap: 6px;
+        }
+
+        .dot {
+          width: 9px;
+          height: 9px;
+          border-radius: 50%;
+        }
+        .dot--red { background: #ef4444; }
+        .dot--yellow { background: #f59e0b; }
+        .dot--green { background: #10b981; }
+
+        .hero-code-window__title {
+          font-family: var(--font-mono);
+          font-size: 11px;
+          color: #94a3b8;
+          font-weight: 500;
+        }
+
+        .hero-code-window__run-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          font-size: 11px;
+          font-weight: 700;
+          padding: 4px 10px;
+          border-radius: 6px;
+          background: #3b82f6;
+          color: #ffffff;
+          text-decoration: none;
+          transition: background 0.2s;
+        }
+
+        .hero-code-window__run-btn:hover {
+          background: #2563eb;
+        }
+
+        .hero-code-window__body {
+          margin: 0;
+          padding: 16px 18px;
+          background: #070a10;
+          font-family: var(--font-mono);
+          font-size: 12.5px;
+          line-height: 1.65;
+          color: #e2e8f0;
+          overflow-x: auto;
+        }
+
+        .tok-comment { color: #64748b; font-style: italic; }
+        .tok-kw { color: #818cf8; font-weight: 600; }
+        .tok-str { color: #34d399; }
+        .tok-fn { color: #38bdf8; }
+
+        @media (max-width: 960px) {
+          .hero-grid {
+            grid-template-columns: 1fr;
+            text-align: center;
+          }
+          .hero-inner {
+            align-items: center;
+            text-align: center;
+          }
+          .hero-actions {
+            justify-content: center;
+          }
+          .hero-title {
+            font-size: 2.5rem;
+          }
         }
         .btn-lg {
           padding: 14px 28px;

@@ -61,7 +61,7 @@ export default function Register() {
       <div className="auth-card glass-panel">
         <div className="auth-header">
           <span className="auth-icon-badge">🚀</span>
-          <h2>Join DataDrix Academy</h2>
+          <h2>Join LearnForge Academy</h2>
           <p>Create your student account to track progress, earn certificates, and master skills.</p>
         </div>
 

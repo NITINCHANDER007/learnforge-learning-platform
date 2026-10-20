@@ -1,7 +1,7 @@
 {
-  "name": "datadrix-mern-platform",
+  "name": "learnforge-platform",
   "version": "2.0.0",
-  "description": "DataDrix & LearnForge Full-Stack MERN Learning Platform (MongoDB, Express, React, Node.js)",
+  "description": "LearnForge Full-Stack MERN Learning Platform (MongoDB, Express, React, Node.js)",
   "scripts": {
     "server": "npm --prefix server run dev",
     "server:dev": "npm --prefix server run dev",

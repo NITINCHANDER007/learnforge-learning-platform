@@ -9,7 +9,7 @@ export default function Footer() {
           <div className="footer-brand-column">
             <div className="footer-brand">
               <span className="brand-logo-glow">⚡</span>
-              <span className="brand-title">DataDrix</span>
+              <span className="brand-title">LearnForge</span>
             </div>
             <p className="footer-tagline">
               Master programming, algorithms, data structures, and SQL with hands-on practice, virtual contests, and interview prep.
@@ -43,7 +43,7 @@ export default function Footer() {
         </div>
 
         <div className="footer-bottom">
-          <p>© {new Date().getFullYear()} DataDrix · LearnForge Platform. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} LearnForge Platform. All rights reserved.</p>
           <div className="footer-bottom-links">
             <span>Free and open learning for students and developers worldwide.</span>
           </div>

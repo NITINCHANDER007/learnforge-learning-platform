@@ -21,6 +21,7 @@ async function publishToWordPress(post, options = {}) {
       return {
         success: true,
         isDryRun: true,
+        status: publishStatus,
         postId: `wp-demo-${Date.now()}`,
         url: `${siteUrl || 'https://demo.wordpress.com'}/?p=101`,
         message: 'WordPress Dry Run Successful. Real publishing requires WordPress site URL, username & Application Password.'
@@ -120,6 +121,7 @@ async function publishToMedium(post, options = {}) {
       return {
         success: true,
         isDryRun: true,
+        status: publishStatus,
         postId: `med-demo-${Date.now()}`,
         url: 'https://medium.com/@demo/sample-seo-backlink-post',
         message: 'Medium Dry Run Successful. Real publishing requires Medium Integration Token.'
@@ -249,7 +251,7 @@ async function publishToGoogleSites(post, options = {}) {
   const gsConfig = settings.googleSites || {};
 
   const webhookUrl = options.webhookUrl || gsConfig.webhookUrl || '';
-  const secretToken = options.secretToken || gsConfig.secretToken || 'datadrix-sites-secret-key-2026';
+  const secretToken = options.secretToken || gsConfig.secretToken || 'learnforge-sites-secret-key-2026';
   const siteUrl = options.siteUrl || gsConfig.siteUrl || '';
 
   // If webhookUrl is configured, dispatch payload to Google Apps Script
@@ -300,7 +302,7 @@ async function publishToGoogleSites(post, options = {}) {
       success: true,
       isDryRun: !webhookUrl,
       postId: `gs-embed-${post.slug}`,
-      url: siteUrl || 'https://sites.google.com/view/datadrix-academy/blog',
+      url: siteUrl || 'https://sites.google.com/view/learnforge-academy/blog',
       message: webhookUrl
         ? 'Published via Google Apps Script Webhook.'
         : 'Google Sites Embed Bundle ready. Deploy the free Google Apps Script webhook or paste embed code into Google Sites.'
@@ -311,7 +313,7 @@ async function publishToGoogleSites(post, options = {}) {
 async function testGoogleSitesConnection(credentials = {}) {
   const settings = await SeoSettings.getSettings();
   const webhookUrl = credentials.webhookUrl || settings.googleSites?.webhookUrl;
-  const secretToken = credentials.secretToken || settings.googleSites?.secretToken || 'datadrix-sites-secret-key-2026';
+  const secretToken = credentials.secretToken || settings.googleSites?.secretToken || 'learnforge-sites-secret-key-2026';
 
   if (!webhookUrl) {
     throw new Error('Please enter your Google Apps Script Webhook URL to test.');
@@ -381,41 +383,412 @@ async function testGeminiConnection(apiKey, model = 'gemini-1.5-flash') {
 
 /**
  * -------------------------------------------------------------
- * 5. UNIFIED MULTI-PLATFORM DISPATCHER
+ * 5. DEV.TO REST API PUBLISHER (Official Free API Key)
  * -------------------------------------------------------------
  */
-async function publishPostToPlatforms(blogPostId, platformsToPublish = [], options = {}) {
-  const post = await BlogPost.findById(blogPostId);
+async function publishToDevTo(post, options = {}) {
+  const settings = await SeoSettings.getSettings();
+  const devConfig = settings.devto || {};
+
+  const apiKey = (options.apiKey || devConfig.apiKey || process.env.DEVTO_API_KEY || '').trim();
+  const publishStatus = options.status || devConfig.defaultStatus || 'draft'; // 'draft' or 'published'
+
+  if (!apiKey) {
+    if (options.dryRun) {
+      return {
+        success: true,
+        isDryRun: true,
+        status: publishStatus,
+        postId: `devto-demo-${Date.now()}`,
+        url: 'https://dev.to/learnforge/sample-seo-backlink-post',
+        message: 'Dev.to Dry Run Successful. Real publishing requires Dev.to API Key (generate free in dev.to -> Settings -> Extensions).'
+      };
+    }
+    throw new Error('Dev.to publishing requires an API Key. Generate one for free in dev.to -> Settings -> Extensions -> DEV Community API Keys.');
+  }
+
+  // Dev.to tag rules: lowercase alphanumeric, max 4 tags, 1-30 chars
+  const tags = (post.targetKeywords || [])
+    .map(k => k.toLowerCase().replace(/[^a-z0-9]/g, '').trim())
+    .filter(k => k.length >= 1 && k.length <= 30)
+    .slice(0, 4);
+
+  const endpoint = 'https://dev.to/api/articles';
+  const payload = {
+    article: {
+      title: post.title,
+      body_markdown: post.contentMarkdown,
+      published: publishStatus === 'published',
+      canonical_url: post.canonicalUrl || 'https://learnforge-learning-platform.onrender.com',
+      description: (post.metaDescription || '').slice(0, 150),
+      tags: tags.length > 0 ? tags : ['programming', 'technology', 'webdev']
+    }
+  };
+
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'api-key': apiKey,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    let parsed;
+    try { parsed = JSON.parse(errorBody); } catch (e) {}
+    const msg = parsed?.error || errorBody || `HTTP ${response.status}`;
+    throw new Error(`Dev.to API failed (${response.status}): ${msg}`);
+  }
+
+  const data = await response.json();
+
+  return {
+    success: true,
+    postId: String(data.id),
+    url: data.url || `https://dev.to/article/${data.id}`,
+    status: data.published ? 'published' : 'draft',
+    publishedAt: new Date()
+  };
+}
+
+async function testDevToConnection(credentials = {}) {
+  const creds = typeof credentials === 'string' ? { apiKey: credentials } : credentials;
+  const settings = await SeoSettings.getSettings();
+  const apiKey = (creds.apiKey || settings.devto?.apiKey || process.env.DEVTO_API_KEY || '').trim();
+
+  if (!apiKey) {
+    throw new Error('Please enter a Dev.to API Key to test (dev.to -> Settings -> Extensions).');
+  }
+
+  const response = await fetch('https://dev.to/api/users/me', {
+    headers: {
+      'api-key': apiKey,
+      'Accept': 'application/json'
+    }
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Dev.to connection test failed (${response.status}): ${errorText}`);
+  }
+
+  const user = await response.json();
+  return {
+    success: true,
+    username: user.username,
+    name: user.name,
+    url: `https://dev.to/${user.username}`,
+    message: `Connected successfully to Dev.to as "${user.name || user.username}" (@${user.username})`
+  };
+}
+
+/**
+ * -------------------------------------------------------------
+ * 6. HASHNODE GRAPHQL API PUBLISHER (Official Free Personal Access Token)
+ * -------------------------------------------------------------
+ */
+async function publishToHashnode(post, options = {}) {
+  const settings = await SeoSettings.getSettings();
+  const hashConfig = settings.hashnode || {};
+
+  const accessToken = (options.accessToken || hashConfig.accessToken || process.env.HASHNODE_ACCESS_TOKEN || '').trim();
+  const publicationId = (options.publicationId || hashConfig.publicationId || process.env.HASHNODE_PUBLICATION_ID || '').trim();
+  const publishStatus = options.status || hashConfig.defaultStatus || 'draft';
+
+  if (!accessToken) {
+    if (options.dryRun) {
+      return {
+        success: true,
+        isDryRun: true,
+        status: publishStatus,
+        postId: `hashnode-demo-${Date.now()}`,
+        url: 'https://hashnode.com/@learnforge/sample-seo-backlink-post',
+        message: 'Hashnode Dry Run Successful. Real publishing requires Hashnode Personal Access Token (hashnode.com/settings/developer).'
+      };
+    }
+    throw new Error('Hashnode publishing requires a Personal Access Token (hashnode.com/settings/developer).');
+  }
+
+  // Hashnode tags (slug & name)
+  const tags = (post.targetKeywords || [])
+    .map(k => k.toLowerCase().replace(/[^a-z0-9]/g, '').trim())
+    .filter(Boolean)
+    .slice(0, 5)
+    .map(slug => ({ slug, name: slug.toUpperCase() }));
+
+  const endpoint = 'https://gql.hashnode.com';
+
+  // If publicationId is provided, publish directly to user's Hashnode publication blog
+  const mutation = `
+    mutation PublishPost($input: PublishPostInput!) {
+      publishPost(input: $input) {
+        post {
+          id
+          title
+          slug
+          url
+        }
+      }
+    }
+  `;
+
+  const input = {
+    title: post.title,
+    contentMarkdown: post.contentMarkdown,
+    tags: tags.length > 0 ? tags : [{ slug: 'programming', name: 'Programming' }],
+    canonicalUrl: post.canonicalUrl || 'https://learnforge-learning-platform.onrender.com'
+  };
+
+  if (publicationId) {
+    input.publicationId = publicationId;
+  }
+
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'Authorization': accessToken,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      query: mutation,
+      variables: { input }
+    })
+  });
+
+  const resJson = await response.json().catch(() => ({}));
+
+  if (resJson.errors && resJson.errors.length > 0) {
+    const errMsg = resJson.errors.map(e => e.message).join('; ');
+    throw new Error(`Hashnode GraphQL error: ${errMsg}`);
+  }
+
+  const createdPost = resJson.data?.publishPost?.post || {};
+
+  return {
+    success: true,
+    postId: String(createdPost.id || `hn-${Date.now()}`),
+    url: createdPost.url || (createdPost.slug ? `https://hashnode.com/post/${createdPost.slug}` : 'https://hashnode.com'),
+    status: publishStatus,
+    publishedAt: new Date()
+  };
+}
+
+async function testHashnodeConnection(credentials = {}) {
+  const creds = typeof credentials === 'string' ? { accessToken: credentials } : credentials;
+  const settings = await SeoSettings.getSettings();
+  const token = (creds.accessToken || settings.hashnode?.accessToken || process.env.HASHNODE_ACCESS_TOKEN || '').trim();
+
+  if (!token) {
+    throw new Error('Please enter a Hashnode Personal Access Token to test (hashnode.com/settings/developer).');
+  }
+
+  const response = await fetch('https://gql.hashnode.com', {
+    method: 'POST',
+    headers: {
+      'Authorization': token,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      query: 'query { me { id username name } }'
+    })
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Hashnode API HTTP error (${response.status}): ${errorText}`);
+  }
+
+  const resJson = await response.json().catch(() => ({}));
+  if (resJson.errors && resJson.errors.length > 0) {
+    throw new Error(`Hashnode test failed: ${resJson.errors[0]?.message}`);
+  }
+
+  const user = resJson.data?.me;
+  if (!user || (!user.id && !user.username)) {
+    throw new Error('Hashnode token was rejected or no valid user profile returned.');
+  }
+  return {
+    success: true,
+    id: user.id,
+    username: user.username,
+    name: user.name,
+    url: `https://hashnode.com/@${user.username}`,
+    message: `Connected successfully to Hashnode as "${user.name || user.username}" (@${user.username})`
+  };
+}
+
+/**
+ * -------------------------------------------------------------
+ * 7. MANUAL PUBLISHING PREPARATION HELPER
+ * (Formats ready-to-paste markdown with metadata, frontmatter, & canonical tags)
+ * -------------------------------------------------------------
+ */
+function prepareManualPublishingPayload(post) {
+  const cleanTags = ((post.targetKeywords && post.targetKeywords.length > 0)
+    ? post.targetKeywords
+    : (post.tags && post.tags.length > 0)
+      ? post.tags
+      : [post.targetSubject || 'programming'])
+    .map(k => k.toLowerCase().replace(/[^a-z0-9]/g, ''))
+    .filter(Boolean)
+    .slice(0, 4);
+
+  const tagsString = cleanTags.join(', ') || 'programming, webdev, python';
+  const canonical = post.canonicalUrl || 'https://learnforge-learning-platform.onrender.com';
+
+  const devtoFrontmatter = `---
+title: "${post.title.replace(/"/g, '\\"')}"
+published: false
+description: "${(post.metaDescription || '').replace(/"/g, '\\"')}"
+tags: ${tagsString}
+canonical_url: ${canonical}
+---`;
+
+  // Dev.to Format (standard DEV Community YAML frontmatter)
+  const devtoPayload = `${devtoFrontmatter}
+
+${post.contentMarkdown}
+`;
+
+  // Hashnode Format
+  const hashnodePayload = `<!--
+HASHNODE PUBLISHING HELPER
+Title: ${post.title}
+Canonical URL: ${canonical}
+Tags: ${tagsString}
+-->
+
+${post.contentMarkdown}
+`;
+
+  // Medium Format
+  const mediumPayload = `# ${post.title}
+
+*Originally published at [LearnForge Learning Academy](${canonical})*
+
+${post.contentMarkdown}
+
+---
+*Recommended Medium Tags: ${tagsString}*
+`;
+
+  return {
+    postId: post._id,
+    title: post.title,
+    canonicalUrl: canonical,
+    tags: cleanTags,
+    tagsString,
+    metaDescription: post.metaDescription,
+    devto: {
+      targetUrl: 'https://dev.to/new',
+      title: post.title,
+      content: devtoPayload,
+      markdown: devtoPayload,
+      frontmatter: devtoFrontmatter,
+      description: post.metaDescription,
+      canonicalUrl: canonical,
+      tags: cleanTags
+    },
+    hashnode: {
+      targetUrl: 'https://hashnode.com/draft',
+      title: post.title,
+      subtitle: post.metaDescription,
+      content: hashnodePayload,
+      markdown: post.contentMarkdown,
+      canonicalUrl: canonical,
+      tags: cleanTags
+    },
+    medium: {
+      targetUrl: 'https://medium.com/new-story',
+      title: post.title,
+      content: mediumPayload,
+      contentHtml: post.contentHtml,
+      canonicalUrl: canonical,
+      tags: cleanTags
+    }
+  };
+}
+
+/**
+ * -------------------------------------------------------------
+ * 8. UNIFIED MULTI-PLATFORM DISPATCHER
+ * -------------------------------------------------------------
+ */
+async function publishPostToPlatforms(blogPostOrId, platformsArg = [], optionsArg = {}) {
+  let platformsToPublish = platformsArg;
+  let options = optionsArg;
+
+  if (platformsArg && !Array.isArray(platformsArg) && typeof platformsArg === 'object') {
+    options = platformsArg;
+    platformsToPublish = options.platforms || [];
+  }
+
+  let post;
+  if (blogPostOrId && typeof blogPostOrId === 'object' && blogPostOrId.title) {
+    post = blogPostOrId;
+  } else {
+    post = await BlogPost.findById(blogPostOrId);
+  }
+
   if (!post) {
     throw new Error('Blog post not found.');
   }
 
   post.status = 'publishing';
-  await post.save();
+  if (post && typeof post.save === 'function') {
+    const mongoose = require('mongoose');
+    if (mongoose.connection && mongoose.connection.readyState === 1) {
+      try { await post.save(); } catch (e) {}
+    }
+  }
 
   const results = {};
   const requestedPlatforms = platformsToPublish.length > 0
     ? platformsToPublish
-    : ['wordpress', 'medium', 'googleSites'];
+    : ['medium', 'devto', 'hashnode'];
 
-  // WordPress Execution
-  if (requestedPlatforms.includes('wordpress')) {
+  // Dev.to Execution
+  if (requestedPlatforms.includes('devto')) {
     try {
-      const res = await publishToWordPress(post, options);
-      post.platformPublications.wordpress = {
-        status: 'published',
+      const res = await publishToDevTo(post, options);
+      post.platformPublications.devto = {
+        status: res.status || 'published',
         postId: res.postId,
         url: res.url,
         publishedAt: res.publishedAt || new Date(),
         error: null
       };
-      results.wordpress = { success: true, url: res.url, isDryRun: res.isDryRun };
+      results.devto = { success: true, url: res.url, status: res.status, isDryRun: res.isDryRun };
     } catch (err) {
-      post.platformPublications.wordpress = {
+      post.platformPublications.devto = {
         status: 'failed',
         error: err.message
       };
-      results.wordpress = { success: false, error: err.message };
+      results.devto = { success: false, error: err.message };
+    }
+  }
+
+  // Hashnode Execution
+  if (requestedPlatforms.includes('hashnode')) {
+    try {
+      const res = await publishToHashnode(post, options);
+      post.platformPublications.hashnode = {
+        status: res.status || 'published',
+        postId: res.postId,
+        url: res.url,
+        publishedAt: res.publishedAt || new Date(),
+        error: null
+      };
+      results.hashnode = { success: true, url: res.url, status: res.status, isDryRun: res.isDryRun };
+    } catch (err) {
+      post.platformPublications.hashnode = {
+        status: 'failed',
+        error: err.message
+      };
+      results.hashnode = { success: false, error: err.message };
     }
   }
 
@@ -424,7 +797,7 @@ async function publishPostToPlatforms(blogPostId, platformsToPublish = [], optio
     try {
       const res = await publishToMedium(post, options);
       post.platformPublications.medium = {
-        status: 'published',
+        status: res.status || 'published',
         postId: res.postId,
         url: res.url,
         publishedAt: res.publishedAt || new Date(),
@@ -440,12 +813,33 @@ async function publishPostToPlatforms(blogPostId, platformsToPublish = [], optio
     }
   }
 
-  // Google Sites Execution
+  // WordPress Execution (Optional legacy platform)
+  if (requestedPlatforms.includes('wordpress')) {
+    try {
+      const res = await publishToWordPress(post, options);
+      post.platformPublications.wordpress = {
+        status: res.status || 'published',
+        postId: res.postId,
+        url: res.url,
+        publishedAt: res.publishedAt || new Date(),
+        error: null
+      };
+      results.wordpress = { success: true, url: res.url, isDryRun: res.isDryRun };
+    } catch (err) {
+      post.platformPublications.wordpress = {
+        status: 'failed',
+        error: err.message
+      };
+      results.wordpress = { success: false, error: err.message };
+    }
+  }
+
+  // Google Sites Execution (Optional legacy platform)
   if (requestedPlatforms.includes('googleSites')) {
     try {
       const res = await publishToGoogleSites(post, options);
       post.platformPublications.googleSites = {
-        status: 'published',
+        status: res.status || 'published',
         postId: res.postId,
         url: res.url,
         publishedAt: res.publishedAt || new Date(),
@@ -464,7 +858,12 @@ async function publishPostToPlatforms(blogPostId, platformsToPublish = [], optio
   // Determine overall status
   const anySuccess = Object.values(results).some(r => r.success);
   post.status = anySuccess ? 'published' : 'failed';
-  await post.save();
+  if (post && typeof post.save === 'function') {
+    const mongoose = require('mongoose');
+    if (mongoose.connection && mongoose.connection.readyState === 1) {
+      await post.save();
+    }
+  }
 
   return {
     success: anySuccess,
@@ -480,6 +879,11 @@ module.exports = {
   testMediumConnection,
   publishToGoogleSites,
   testGoogleSitesConnection,
+  publishToDevTo,
+  testDevToConnection,
+  publishToHashnode,
+  testHashnodeConnection,
+  prepareManualPublishingPayload,
   testGeminiConnection,
   publishPostToPlatforms
 };

@@ -5,7 +5,7 @@ const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(() => localStorage.getItem('datadrix_token'));
+  const [token, setToken] = useState(() => localStorage.getItem('learnforge_token') || localStorage.getItem('datadrix_token'));
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -26,6 +26,7 @@ export function AuthProvider({ children }) {
 
   const login = async (identifier, password) => {
     const res = await api.login({ identifier, password });
+    localStorage.setItem('learnforge_token', res.token);
     localStorage.setItem('datadrix_token', res.token);
     setToken(res.token);
     setUser(res.user);
@@ -43,6 +44,7 @@ export function AuthProvider({ children }) {
     }
 
     const res = await api.register(payload);
+    localStorage.setItem('learnforge_token', res.token);
     localStorage.setItem('datadrix_token', res.token);
     setToken(res.token);
     setUser(res.user);
@@ -50,6 +52,7 @@ export function AuthProvider({ children }) {
   };
 
   const logout = () => {
+    localStorage.removeItem('learnforge_token');
     localStorage.removeItem('datadrix_token');
     setToken(null);
     setUser(null);

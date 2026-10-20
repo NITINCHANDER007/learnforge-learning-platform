@@ -680,8 +680,8 @@ except Exception as e:
 
     const newComment = {
       id: 'user-c-' + Date.now(),
-      author: newCommentName.trim() || 'DataDrix Coder',
-      avatar: (newCommentName.trim() || 'DC').slice(0, 2).toUpperCase(),
+      author: newCommentName.trim() || 'LearnForge Coder',
+      avatar: (newCommentName.trim() || 'LF').slice(0, 2).toUpperCase(),
       role: 'Community Developer',
       time: 'Just now',
       upvotes: 1,
@@ -1110,7 +1110,7 @@ except Exception as e:
                 <div className="editorial-header">
                   <Layers size={18} color="#10b981" />
                   <div>
-                    <h4>Official DataDrix Editorial</h4>
+                    <h4>Official LearnForge Editorial</h4>
                     <span className="approach-tag">Approach: {problem.editorial.approach}</span>
                   </div>
                 </div>
@@ -1458,7 +1458,7 @@ except Exception as e:
                   <div className="bot-analysis-card glass-panel">
                     <div className="edge-cases-header">
                       <h4>Interview Edge-Case Checklist</h4>
-                      <p>DataDrix test benches rigorously evaluate unusual inputs and boundary conditions.</p>
+                      <p>LearnForge test benches rigorously evaluate unusual inputs and boundary conditions.</p>
                     </div>
 
                     <div className="edge-cases-list">

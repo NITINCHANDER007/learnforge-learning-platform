@@ -1,4 +1,4 @@
-// DataDrix Curated Algorithmic Problem Catalog, Tracks, and Interview Experiences
+// LearnForge Curated Algorithmic Problem Catalog, Tracks, and Interview Experiences
 // Complete with Python 3, JavaScript, C++, and Java templates, test suites, community discussions, and editorials.
 
 export const ALL_COMPANIES = ['All', 'Google', 'Amazon', 'Microsoft', 'Meta', 'Flipkart', 'Apple', 'Adobe', 'TCS'];
@@ -24,7 +24,7 @@ export const DATADRIX_TRACKS = [
   },
   {
     id: 'datadrix-160',
-    title: 'DataDrix 160: Core Algorithmic Mastery',
+    title: 'LearnForge 160: Core Algorithmic Mastery',
     subtitle: '160-day structured roadmap from fundamentals to advanced trees, graphs & DP',
     icon: 'Zap',
     color: '#3b82f6',
@@ -1120,7 +1120,7 @@ export const DATADRIX_PROBLEMS = PROBLEMS_CATALOG;
 export const DATADRIX_CONTESTS = [
   {
     id: 'datadrix-weekly-142',
-    title: 'DataDrix Weekly Contest 142',
+    title: 'LearnForge Weekly Contest 142',
     tagline: 'Sharpen your competitive coding edge against 15,000+ Developers worldwide',
     type: 'Weekly Rated Contest',
     status: 'live', // 'live' | 'upcoming' | 'past'
@@ -1137,9 +1137,9 @@ export const DATADRIX_CONTESTS = [
       { slug: 'trapping-rain-water', title: 'Trapping Rain Water', points: 400, difficulty: 'Hard', time: '30m' }
     ],
     prizes: [
-      'Rank 1: DataDrix Swag Kit + Laptop Backpack + Direct SDE Referral',
-      'Rank 2-5: Premium DataDrix Hoodies + Amazon Voucher ₹3,000',
-      'Rank 6-25: 500 DataDrix Credits + Course Discount Coupons'
+      'Rank 1: LearnForge Swag Kit + Laptop Backpack + Direct SDE Referral',
+      'Rank 2-5: Premium LearnForge Hoodies + Amazon Voucher ₹3,000',
+      'Rank 6-25: 500 LearnForge Credits + Course Discount Coupons'
     ],
     rules: [
       'Every failed submission incurs a 5-minute penalty upon subsequent accepted submission.',
@@ -1197,7 +1197,7 @@ export const DATADRIX_CONTESTS = [
     ],
     prizes: [
       'Top University: National Trophy + ₹50,000 Hackathon Sponsorship',
-      'Top 10 Students: Direct tech internship offers and DataDrix Medals'
+      'Top 10 Students: Direct tech internship offers and LearnForge Medals'
     ],
     rules: [
       'Must enter college email / institute ID during registration.',
@@ -1206,7 +1206,7 @@ export const DATADRIX_CONTESTS = [
   },
   {
     id: 'datadrix-weekly-141',
-    title: 'DataDrix Weekly Contest 141 (Archive)',
+    title: 'LearnForge Weekly Contest 141 (Archive)',
     tagline: 'Test your speed and precision against the real contest leaderboard of Weekly 141',
     type: 'Past Rated Contest',
     status: 'past',

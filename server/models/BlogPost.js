@@ -142,6 +142,14 @@ const BlogPostSchema = new mongoose.Schema({
     googleSites: {
       type: PlatformPublicationSchema,
       default: () => ({})
+    },
+    devto: {
+      type: PlatformPublicationSchema,
+      default: () => ({})
+    },
+    hashnode: {
+      type: PlatformPublicationSchema,
+      default: () => ({})
     }
   },
   generationSource: {
@@ -163,7 +171,9 @@ BlogPostSchema.virtual('isPublishedAnywhere').get(function() {
   const wp = this.platformPublications?.wordpress?.status === 'published';
   const med = this.platformPublications?.medium?.status === 'published';
   const gs = this.platformPublications?.googleSites?.status === 'published';
-  return wp || med || gs;
+  const dev = this.platformPublications?.devto?.status === 'published';
+  const hash = this.platformPublications?.hashnode?.status === 'published';
+  return wp || med || gs || dev || hash;
 });
 
 module.exports = mongoose.model('BlogPost', BlogPostSchema);

@@ -35,7 +35,7 @@ export default function Login() {
       <div className="auth-card glass-panel">
         <div className="auth-header">
           <span className="auth-icon-badge">⚡</span>
-          <h2>Sign in to DataDrix</h2>
+          <h2>Sign in to LearnForge</h2>
           <p>Access your curriculum progress, bookmarks, and certifications.</p>
         </div>
 

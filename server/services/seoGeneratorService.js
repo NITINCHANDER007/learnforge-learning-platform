@@ -6,6 +6,7 @@ const hljs = require('highlight.js');
 const { listSubjects, buildSubjectTree } = require('./contentLoader');
 const BlogPost = require('../models/BlogPost');
 const SeoSettings = require('../models/SeoSettings');
+const mongoose = require('mongoose');
 
 // Initialize markdown compiler with syntax highlighting
 const marked = new Marked(
@@ -26,70 +27,70 @@ const SUBJECT_METADATA = {
     name: 'Python',
     category: 'Programming & Automation',
     keywords: ['Python tutorial', 'learn Python online', 'Python programming guide', 'Python data structures', 'clean code Python', 'Python automation'],
-    anchors: ['DataDrix Python Mastery Curriculum', 'hands-on Python coding tutorials', 'complete Python course', 'interactive Python learning modules'],
+    anchors: ['LearnForge Python Mastery Curriculum', 'hands-on Python coding tutorials', 'complete Python course', 'interactive Python learning modules'],
     codeSnippet: `def process_dataset(records: list[dict]) -> dict:\n    """Clean and aggregate incoming data records efficiently."""\n    summary = {"valid_count": 0, "total_value": 0.0}\n    for item in records:\n        if item.get("status") == "active":\n            summary["valid_count"] += 1\n            summary["total_value"] += float(item.get("amount", 0))\n    return summary\n\n# Example execution\nrecords = [{"amount": 149.50, "status": "active"}, {"amount": 29.99, "status": "pending"}]\nprint(process_dataset(records))`
   },
   sql: {
     name: 'SQL & Database Design',
     category: 'Data Engineering & Databases',
     keywords: ['SQL queries tutorial', 'master SQL joins', 'database optimization', 'PostgreSQL vs MySQL', 'learn SQL step by step', 'SQL index performance'],
-    anchors: ['DataDrix interactive SQL curriculum', 'master SQL database design', 'practical SQL query exercises', 'SQL problem-solving platform'],
+    anchors: ['LearnForge interactive SQL curriculum', 'master SQL database design', 'practical SQL query exercises', 'SQL problem-solving platform'],
     codeSnippet: `-- Advanced Window Function for Customer Analytics\nWITH RankedOrders AS (\n    SELECT \n        customer_id,\n        order_date,\n        total_amount,\n        ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY order_date DESC) AS recency_rank\n    FROM orders\n    WHERE status = 'completed'\n)\nSELECT customer_id, order_date, total_amount\nFROM RankedOrders\nWHERE recency_rank = 1;`
   },
   pandas: {
     name: 'Pandas Data Analysis',
     category: 'Data Science',
     keywords: ['Pandas tutorial', 'Pandas DataFrame manipulation', 'data cleaning with Python Pandas', 'Pandas groupby aggregation', 'data science workflows'],
-    anchors: ['DataDrix comprehensive Pandas modules', 'learn Pandas DataFrame manipulation', 'complete Pandas data analysis track'],
+    anchors: ['LearnForge comprehensive Pandas modules', 'learn Pandas DataFrame manipulation', 'complete Pandas data analysis track'],
     codeSnippet: `import pandas as pd\n\n# Vectorized cleaning and transformation\ndf = pd.DataFrame({\n    'user': ['Alice', 'Bob', 'Charlie'],\n    'score': [88, 92, 79],\n    'category': ['Engineering', 'Data', 'Engineering']\n})\n\nresult = df.groupby('category')['score'].agg(['mean', 'count']).reset_index()\nprint(result)`
   },
   numpy: {
     name: 'NumPy High Performance',
     category: 'Data Science & Scientific Computing',
     keywords: ['NumPy tutorial', 'NumPy arrays vs Python lists', 'vectorized operations', 'NumPy matrix mathematics', 'scientific computing'],
-    anchors: ['DataDrix NumPy tutorials', 'master vectorization with NumPy', 'NumPy scientific computing path'],
+    anchors: ['LearnForge NumPy tutorials', 'master vectorization with NumPy', 'NumPy scientific computing path'],
     codeSnippet: `import numpy as np\n\n# Vectorized matrix transformation\nmatrix_a = np.random.rand(1000, 100)\nweights = np.random.rand(100)\n\n# Fast dot product execution\nprojections = np.dot(matrix_a, weights)\nprint(f"Computed {len(projections)} projection vectors with zero Python loops.")`
   },
   'machine-learning': {
     name: 'Machine Learning & AI',
     category: 'Artificial Intelligence',
     keywords: ['Machine Learning algorithms', 'Scikit-Learn tutorial', 'Supervised vs Unsupervised ML', 'Model evaluation metrics', 'train test split guide'],
-    anchors: ['DataDrix Machine Learning curriculum', 'hands-on ML algorithms course', 'practical AI and Machine Learning track'],
+    anchors: ['LearnForge Machine Learning curriculum', 'hands-on ML algorithms course', 'practical AI and Machine Learning track'],
     codeSnippet: `from sklearn.model_selection import train_test_split\nfrom sklearn.ensemble import RandomForestClassifier\nfrom sklearn.metrics import classification_report\n\n# Standard ML production pipeline pattern\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)\nclf = RandomForestClassifier(n_estimators=100, random_state=42)\nclf.fit(X_train, y_train)\n\npredictions = clf.predict(X_test)\nprint(classification_report(y_test, predictions))`
   },
   'web-scraping': {
     name: 'Web Scraping & Data Extraction',
     category: 'Data Engineering & Web Automation',
     keywords: ['Python web scraping', 'BeautifulSoup tutorial', 'handling dynamic websites', 'scraping best practices', 'preventing IP bans scraping'],
-    anchors: ['DataDrix Web Scraping interactive guide', 'master Python web scraping', 'automated data extraction course'],
-    codeSnippet: `import requests\nfrom bs4 import BeautifulSoup\n\nurl = "https://example.com/catalog"\nheaders = {"User-Agent": "Mozilla/5.0 (DataDrix-Bot/1.0)"}\n\nresponse = requests.get(url, headers=headers, timeout=10)\nif response.ok:\n    soup = BeautifulSoup(response.text, "html.parser")\n    titles = [tag.get_text(strip=True) for tag in soup.select("h2.entry-title")]\n    print(f"Successfully parsed {len(titles)} catalog entries.")`
+    anchors: ['LearnForge Web Scraping interactive guide', 'master Python web scraping', 'automated data extraction course'],
+    codeSnippet: `import requests\nfrom bs4 import BeautifulSoup\n\nurl = "https://example.com/catalog"\nheaders = {"User-Agent": "Mozilla/5.0 (LearnForge-Bot/1.0)"}\n\nresponse = requests.get(url, headers=headers, timeout=10)\nif response.ok:\n    soup = BeautifulSoup(response.text, "html.parser")\n    titles = [tag.get_text(strip=True) for tag in soup.select("h2.entry-title")]\n    print(f"Successfully parsed {len(titles)} catalog entries.")`
   },
   javascript: {
     name: 'Modern JavaScript (ES6+)',
     category: 'Full-Stack Web Development',
     keywords: ['JavaScript tutorial', 'Async Await JavaScript', 'closures and event loop', 'modern ES6 features', 'learn JavaScript free'],
-    anchors: ['DataDrix modern JavaScript track', 'learn full-stack JavaScript', 'interactive JavaScript modules'],
+    anchors: ['LearnForge modern JavaScript track', 'learn full-stack JavaScript', 'interactive JavaScript modules'],
     codeSnippet: `// Modern async concurrency with Promise.allSettled\nasync function fetchBatch(endpoints) {\n  const results = await Promise.allSettled(\n    endpoints.map(url => fetch(url).then(res => res.json()))\n  );\n  return results\n    .filter(r => r.status === 'fulfilled')\n    .map(r => r.value);\n}`
   },
   flask: {
     name: 'Flask Python Web Framework',
     category: 'Backend Development',
     keywords: ['Flask tutorial', 'Flask REST API development', 'Flask Blueprints pattern', 'deploying Flask apps', 'Python web development'],
-    anchors: ['DataDrix Flask backend course', 'master Flask REST API building', 'Python backend architecture guide'],
-    codeSnippet: `from flask import Flask, jsonify, request\n\napp = Flask(__name__)\n\n@app.route('/api/health', methods=['GET'])\ndef health_check():\n    return jsonify({"status": "healthy", "service": "DataDrix-Service"})\n\nif __name__ == '__main__':\n    app.run(debug=False, port=5000)`
+    anchors: ['LearnForge Flask backend course', 'master Flask REST API building', 'Python backend architecture guide'],
+    codeSnippet: `from flask import Flask, jsonify, request\n\napp = Flask(__name__)\n\n@app.route('/api/health', methods=['GET'])\ndef health_check():\n    return jsonify({"status": "healthy", "service": "LearnForge-Service"})\n\nif __name__ == '__main__':\n    app.run(debug=False, port=5000)`
   },
   'power-bi': {
     name: 'Power BI Business Intelligence',
     category: 'Data Analytics & Visualization',
     keywords: ['Power BI tutorial', 'DAX formulas guide', 'Power BI dashboard design', 'data modeling Power BI', 'business intelligence tools'],
-    anchors: ['DataDrix Power BI mastery path', 'learn DAX and Power BI dashboards', 'practical business intelligence track'],
+    anchors: ['LearnForge Power BI mastery path', 'learn DAX and Power BI dashboards', 'practical business intelligence track'],
     codeSnippet: `// DAX Measure for Year-Over-Year Growth Calculation\nYoY_Sales_Growth % =\nVAR CurrentYearSales = [Total Sales]\nVAR PriorYearSales = CALCULATE([Total Sales], SAMEPERIODLASTYEAR('Calendar'[Date]))\nRETURN\n    DIVIDE(CurrentYearSales - PriorYearSales, PriorYearSales, 0)`
   },
   excel: {
     name: 'Advanced Excel & Analytics',
     category: 'Productivity & Analytics',
     keywords: ['Advanced Excel formulas', 'XLOOKUP tutorial', 'Excel Pivot Tables', 'Excel automation', 'data analysis in Excel'],
-    anchors: ['DataDrix Excel analytics training', 'master Excel formulas and dashboards', 'complete Excel training path'],
+    anchors: ['LearnForge Excel analytics training', 'master Excel formulas and dashboards', 'complete Excel training path'],
     codeSnippet: `=XLOOKUP(A2, Customers[CustomerID], Customers[Email], "Not Found", 0, 1)`
   }
 };
@@ -154,7 +155,7 @@ function getAvailableBacklinkTargets(websiteBaseUrl = 'http://localhost:3000') {
 
   // Core interactive platform tools
   targets.push({
-    title: 'DataDrix Interactive Code Playground',
+    title: 'LearnForge Interactive Code Playground',
     url: `${baseUrl}/playground`,
     subject: 'all',
     type: 'tool',
@@ -162,7 +163,7 @@ function getAvailableBacklinkTargets(websiteBaseUrl = 'http://localhost:3000') {
   });
 
   targets.push({
-    title: 'DataDrix Practice & Coding Challenges',
+    title: 'LearnForge Practice & Coding Challenges',
     url: `${baseUrl}/practice`,
     subject: 'all',
     type: 'tool',
@@ -185,7 +186,7 @@ function getAvailableBacklinkTargets(websiteBaseUrl = 'http://localhost:3000') {
       url: subjectUrl,
       subject: s.slug,
       type: 'subject',
-      defaultAnchor: `complete ${s.title} curriculum on DataDrix`
+      defaultAnchor: `complete ${s.title} curriculum on LearnForge`
     });
 
     try {
@@ -213,11 +214,22 @@ function getAvailableBacklinkTargets(websiteBaseUrl = 'http://localhost:3000') {
  * Uniqueness & Duplicate Checker Service
  * Evaluates proposed content against all existing BlogPosts in MongoDB
  */
-async function checkContentUniqueness(contentMarkdown, excludePostId = null) {
-  const query = excludePostId ? { _id: { $ne: excludePostId } } : {};
-  const existingPosts = await BlogPost.find(query).select('title slug contentMarkdown contentHash');
+async function checkContentUniqueness(contentMarkdown, excludePostId = null, existingPostsOverride = null) {
+  let existingPosts = existingPostsOverride;
+  if (!existingPosts) {
+    if (mongoose.connection && mongoose.connection.readyState === 1) {
+      try {
+        const query = excludePostId ? { _id: { $ne: excludePostId } } : {};
+        existingPosts = await BlogPost.find(query).select('title slug contentMarkdown contentHash');
+      } catch (err) {
+        existingPosts = [];
+      }
+    } else {
+      existingPosts = [];
+    }
+  }
 
-  if (existingPosts.length === 0) {
+  if (!existingPosts || existingPosts.length === 0) {
     return {
       uniquenessScore: 100,
       highestSimilarityPercent: 0,
@@ -274,8 +286,8 @@ function generateSmartTemplateArticle(subjectSlug, options = {}) {
     name: subjectSlug.toUpperCase(),
     category: 'Computer Science & Software Engineering',
     keywords: [`${subjectSlug} tutorial`, `learn ${subjectSlug}`, `${subjectSlug} guide`],
-    anchors: [`DataDrix ${subjectSlug} course`, `comprehensive ${subjectSlug} tutorial`],
-    codeSnippet: `// Sample practical code for ${subjectSlug}\nconsole.log("Mastering ${subjectSlug} with DataDrix!");`
+    anchors: [`LearnForge ${subjectSlug} course`, `comprehensive ${subjectSlug} tutorial`],
+    codeSnippet: `// Sample practical code for ${subjectSlug}\nconsole.log("Mastering ${subjectSlug} with LearnForge!");`
   };
 
   const websiteBaseUrl = (options.websiteBaseUrl || 'http://localhost:3000').replace(/\/$/, '');
@@ -321,7 +333,7 @@ function generateSmartTemplateArticle(subjectSlug, options = {}) {
 
   const backlinks = [
     {
-      anchorText: `explore the complete ${subjectName} learning path at DataDrix`,
+      anchorText: `explore the complete ${subjectName} learning path at LearnForge`,
       targetUrl: subjectUrl,
       targetSubject: subjectSlug,
       rel: 'dofollow'
@@ -406,14 +418,14 @@ To cement these concepts into intuitive muscle memory, engineers should solve ta
 ## 5. Frequently Asked Questions (FAQ)
 
 ### What is the most effective way to learn ${subjectName} from scratch?
-Start with bite-sized, hands-on coding exercises rather than passively watching video playlists. Platforms like DataDrix combine structured lesson theory with an integrated compiler and live problem-solver so you validate your understanding immediately after reading each module.
+Start with bite-sized, hands-on coding exercises rather than passively watching video playlists. Platforms like LearnForge combine structured lesson theory with an integrated compiler and live problem-solver so you validate your understanding immediately after reading each module.
 
 ### How do I prevent duplicate logic across multiple ${subjectName} services?
 Modularize shared logic into internal packages or shared utility modules with clear semantic versioning. Maintain clean interfaces and write unit tests that verify contract adherence.
 
 ---
 
-*Published by DataDrix Learning Systems • Empowering software engineers and data practitioners worldwide.*
+*Published by LearnForge Learning Systems • Empowering software engineers and data practitioners worldwide.*
 `;
 
   const metaDescription = `Master ${subjectName} with this comprehensive technical guide. Explore architecture patterns, practical code snippets, best practices, and interactive tutorials.`.slice(0, 160);
@@ -426,6 +438,7 @@ Modularize shared logic into internal packages or shared utility modules with cl
     metaDescription,
     targetKeywords: [primaryKeyword, ...secondaryKeywords],
     secondaryKeywords,
+    tags: [primaryKeyword, ...secondaryKeywords],
     targetSubject: subjectSlug,
     topicAngle: selectedAngle.angle,
     contentMarkdown: markdown,
@@ -453,7 +466,7 @@ async function generateGeminiArticle(subjectSlug, apiKey, modelName = 'gemini-1.
   const targetUrl2 = `${websiteBaseUrl}/playground`;
   const targetUrl3 = `${websiteBaseUrl}/practice`;
 
-  const prompt = `You are a world-class technical writer and senior SEO specialist writing for DataDrix (a premier computer science and data academy).
+  const prompt = `You are a world-class technical writer and senior SEO specialist writing for LearnForge (a premier computer science and data academy).
 Write an original, in-depth, captivating, high-ranking SEO blog post (approx 1200 - 1600 words) about: "${subjectName}".
 
 MANDATORY SPECIFICATIONS:
@@ -467,9 +480,9 @@ MANDATORY SPECIFICATIONS:
    - Include a comprehensive FAQ section with at least 2 common developer questions.
 3. ORGANIC BACKLINK INTEGRATION:
    Naturally weave these exact 3 links into the body paragraphs using conversational, high-authority anchor text (do not use generic anchors like "click here"):
-   - Link 1: URL "${targetUrl1}" (Anchor should naturally refer to the comprehensive ${subjectName} curriculum or course at DataDrix)
-   - Link 2: URL "${targetUrl2}" (Anchor should refer to DataDrix's interactive code playground)
-   - Link 3: URL "${targetUrl3}" (Anchor should refer to DataDrix's hands-on practice problems and challenges)
+   - Link 1: URL "${targetUrl1}" (Anchor should naturally refer to the comprehensive ${subjectName} curriculum or course at LearnForge)
+   - Link 2: URL "${targetUrl2}" (Anchor should refer to LearnForge's interactive code playground)
+   - Link 3: URL "${targetUrl3}" (Anchor should refer to LearnForge's hands-on practice problems and challenges)
 4. TONE & STYLE: Highly informative, professional, developer-friendly, zero fluff, zero clichés.
 5. NO DUPLICATE CONTENT: Ensure the phrasing, examples, and structure are completely original.
 
@@ -516,7 +529,7 @@ Output ONLY valid Markdown. Do not include extra conversational banter before or
   const readingTimeMinutes = Math.max(1, Math.round(wordCount / 200));
 
   const backlinks = [
-    { anchorText: `DataDrix ${subjectName} curriculum`, targetUrl: targetUrl1, targetSubject: subjectSlug, rel: 'dofollow' },
+    { anchorText: `LearnForge ${subjectName} curriculum`, targetUrl: targetUrl1, targetSubject: subjectSlug, rel: 'dofollow' },
     { anchorText: `interactive code playground`, targetUrl: targetUrl2, targetSubject: 'all', rel: 'dofollow' },
     { anchorText: `hands-on coding challenges`, targetUrl: targetUrl3, targetSubject: subjectSlug, rel: 'dofollow' }
   ];
@@ -526,6 +539,7 @@ Output ONLY valid Markdown. Do not include extra conversational banter before or
     metaDescription,
     targetKeywords: meta.keywords || [`${subjectSlug} tutorial`, `learn ${subjectSlug}`],
     secondaryKeywords: (meta.keywords || []).slice(1),
+    tags: (meta.keywords || [`${subjectSlug}`]).slice(0, 5),
     targetSubject: subjectSlug,
     topicAngle: 'gemini-ai-guide',
     contentMarkdown: rawText,

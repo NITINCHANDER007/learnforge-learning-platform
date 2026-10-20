@@ -6,17 +6,17 @@ import { Play, RotateCcw, Copy, Check, Terminal, Sparkles, Clock, AlertCircle, C
 
 const CODE_TEMPLATES = {
   python: {
-    hello: `# DataDrix Python Playground\nprint("Hello from DataDrix High-Performance Python Engine!")\n\nfor i in range(1, 6):\n    print(f"Bite-sized lesson step {i}: 🔥 mastery unlocked!")\n`,
+    hello: `# LearnForge Python Playground\nprint("Hello from LearnForge High-Performance Python Engine!")\n\nfor i in range(1, 6):\n    print(f"Bite-sized lesson step {i}: 🔥 mastery unlocked!")\n`,
     data: `# Data Analytics & Statistics\nscores = [88, 92, 79, 95, 84, 100, 71]\n\ndef analyze_scores(data):\n    return {\n        "count": len(data),\n        "total": sum(data),\n        "average": round(sum(data) / len(data), 2),\n        "top_score": max(data),\n        "lowest": min(data)\n    }\n\nstats = analyze_scores(scores)\nprint("=== Data Analytics Report ===")\nfor k, v in stats.items():\n    print(f"{k.capitalize()}: {v}")\n`,
     loops: `# Loops & List Comprehensions\ntech_stack = ["MongoDB", "Express", "React", "Node.js", "Python", "SQL"]\n\nuppercased = [tech.upper() for tech in tech_stack]\nprint("Tech Stack (Upper):", uppercased)\n\neven_squares = [x**2 for x in range(10) if x % 2 == 0]\nprint("Even Squares:", even_squares)\n`,
     classes: `# Object-Oriented Programming (OOP)\nclass Student:\n    def __init__(self, name, track):\n        self.name = name\n        self.track = track\n        self.completed_lessons = 0\n\n    def complete_lesson(self, title):\n        self.completed_lessons += 1\n        print(f"🎉 {self.name} finished: {title}! (Total: {self.completed_lessons})")\n\ns = Student("Alex", "Full-Stack Data Engineering")\ns.complete_lesson("Python Fundamentals")\ns.complete_lesson("SQL Aggregations & Joins")\n`
   },
   javascript: {
-    hello: `// DataDrix JavaScript Playground\nconsole.log("Hello from Modern JavaScript Engine!");\n\nconst items = ["MongoDB", "Express", "React", "Node", "Python"];\nconsole.log("Full Stack Stack:", items.join(" -> "));\n`,
+    hello: `// LearnForge JavaScript Playground\nconsole.log("Hello from Modern JavaScript Engine!");\n\nconst items = ["MongoDB", "Express", "React", "Node", "Python"];\nconsole.log("Full Stack Stack:", items.join(" -> "));\n`,
     data: `// Data Processing with Arrays\nconst users = [\n  { name: "Alice", score: 95, role: "Admin" },\n  { name: "Bob", score: 82, role: "Student" },\n  { name: "Charlie", score: 91, role: "Student" }\n];\n\nconst avg = users.reduce((acc, u) => acc + u.score, 0) / users.length;\nconsole.log("Average Student Score:", avg.toFixed(2));\n`
   },
   sql: {
-    aggregations: `-- DataDrix SQL Interactive Engine (SQLite)\nSELECT department, COUNT(*) AS total_staff, AVG(salary) AS average_salary\nFROM employees\nGROUP BY department\nORDER BY average_salary DESC;\n`,
+    aggregations: `-- LearnForge SQL Interactive Engine (SQLite)\nSELECT department, COUNT(*) AS total_staff, AVG(salary) AS average_salary\nFROM employees\nGROUP BY department\nORDER BY average_salary DESC;\n`,
     filter: `-- Filter high-performing staff\nSELECT name, department, salary, hire_date\nFROM employees\nWHERE salary >= 85000\nORDER BY salary DESC;\n`,
     students: `-- Organization Student Roster\nSELECT name, track, score, status\nFROM students\nWHERE score >= 90\nORDER BY score DESC;\n`
   }

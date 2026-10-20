@@ -16,8 +16,8 @@ const User = require('./models/User');
 connectDB().then(async () => {
   // Ensure default admin user exists
   try {
-    const adminEmail = 'admin@datadrix.com';
-    const admin = await User.findOne({ email: adminEmail });
+    const adminEmail = process.env.ADMIN_EMAIL || 'admin@learnforge.com';
+    let admin = await User.findOne({ email: { $in: [adminEmail, 'admin@datadrix.com'] } });
     if (!admin) {
       await User.create({
         name: 'Admin',
@@ -26,10 +26,10 @@ connectDB().then(async () => {
         role: 'admin',
         isActive: true
       });
-      console.log(`[DataDrix] Seeded default admin: ${adminEmail} / adminpassword123`);
+      console.log(`[LearnForge] Seeded default admin: ${adminEmail} / adminpassword123`);
     }
   } catch (e) {
-    console.warn('[DataDrix] Admin seed check warning:', e.message);
+    console.warn('[LearnForge] Admin seed check warning:', e.message);
   }
 
   // Initialize SEO Backlink Auto-Pilot Scheduler
@@ -37,7 +37,7 @@ connectDB().then(async () => {
     const { initializeAutoPilotScheduler } = require('./services/autoPilotService');
     await initializeAutoPilotScheduler();
   } catch (e) {
-    console.warn('[DataDrix] SEO Scheduler startup warning:', e.message);
+    console.warn('[LearnForge] SEO Scheduler startup warning:', e.message);
   }
 });
 
@@ -109,10 +109,10 @@ app.get('/api/health', async (req, res) => {
 
   res.json({
     status: isDbConnected ? 'ok' : 'degraded',
-    platform: 'DataDrix MERN Platform',
+    platform: 'LearnForge MERN Platform',
     database: {
       status: isDbConnected ? 'connected' : 'disconnected',
-      name: mongoose.connection.name || 'datadrix',
+      name: mongoose.connection.name || 'learnforge',
       host: mongoose.connection.host ? `${mongoose.connection.host}:${mongoose.connection.port || 27017}` : '127.0.0.1:27017',
       latency: pingMs !== null ? `${pingMs}ms` : 'N/A'
     },
@@ -151,11 +151,11 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`
 =============================================================
-   [DataDrix MERN] Express & MongoDB Server Active
+   [LearnForge MERN] Express & MongoDB Server Active
    URL:         http://localhost:${PORT}
-   Database:    MongoDB (datadrix)
+   Database:    MongoDB (${mongoose.connection.name || 'learnforge'})
    API:         http://localhost:${PORT}/api
-   Admin Login: admin@datadrix.com / adminpassword123
+   Admin Login: admin@learnforge.com / adminpassword123
 =============================================================
 `);
 });

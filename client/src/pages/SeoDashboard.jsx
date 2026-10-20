@@ -63,10 +63,32 @@ export default function SeoDashboard() {
   const [publishingInProgress, setPublishingInProgress] = useState(false);
   const [publishFeedback, setPublishFeedback] = useState(null);
   const [selectedPlatforms, setSelectedPlatforms] = useState({
-    wordpress: true,
     medium: true,
-    googleSites: true
+    devto: true,
+    hashnode: true,
+    wordpress: false,
+    googleSites: false
   });
+  const [manualPayloads, setManualPayloads] = useState(null);
+  const [copiedKey, setCopiedKey] = useState('');
+
+  const copyToClipboard = (text, key) => {
+    if (!text) return;
+    navigator.clipboard.writeText(text);
+    setCopiedKey(key);
+    setTimeout(() => setCopiedKey(''), 2000);
+  };
+
+  // Load manual publishing payloads when modal post opens
+  useEffect(() => {
+    if (activeModalPost?._id) {
+      api.getSeoManualPayloads(activeModalPost._id)
+        .then(res => { if (res.payloads) setManualPayloads(res.payloads); })
+        .catch(() => {});
+    } else {
+      setManualPayloads(null);
+    }
+  }, [activeModalPost]);
 
   // Settings Edit State
   const [settingsFormData, setSettingsFormData] = useState(null);
@@ -267,6 +289,11 @@ export default function SeoDashboard() {
         credentials.siteUrl = settingsFormData.wordpress?.siteUrl;
         credentials.username = settingsFormData.wordpress?.username;
         credentials.applicationPassword = settingsFormData.wordpress?.applicationPassword;
+      } else if (platform === 'devto') {
+        credentials.apiKey = settingsFormData.devto?.apiKey;
+      } else if (platform === 'hashnode') {
+        credentials.accessToken = settingsFormData.hashnode?.accessToken;
+        credentials.publicationId = settingsFormData.hashnode?.publicationId;
       } else if (platform === 'medium') {
         credentials.integrationToken = settingsFormData.medium?.integrationToken;
       } else if (platform === 'googleSites') {
@@ -388,11 +415,17 @@ export default function SeoDashboard() {
             <Share2 className="metric-icon purple-icon" size={20} />
           </div>
           <div className="platform-pills-row">
-            <span className="platform-pill wp-pill" title="WordPress Posts">
-              WP: <b>{stats?.platforms?.wordpress || 0}</b>
-            </span>
             <span className="platform-pill med-pill" title="Medium Posts">
               Medium: <b>{stats?.platforms?.medium || 0}</b>
+            </span>
+            <span className="platform-pill dev-pill" title="Dev.to Posts">
+              Dev.to: <b>{stats?.platforms?.devto || 0}</b>
+            </span>
+            <span className="platform-pill hash-pill" title="Hashnode Posts">
+              Hashnode: <b>{stats?.platforms?.hashnode || 0}</b>
+            </span>
+            <span className="platform-pill wp-pill" title="WordPress Posts">
+              WP: <b>{stats?.platforms?.wordpress || 0}</b>
             </span>
             <span className="platform-pill gs-pill" title="Google Sites Posts">
               Sites: <b>{stats?.platforms?.googleSites || 0}</b>
@@ -460,16 +493,28 @@ export default function SeoDashboard() {
                 Published
               </button>
               <button
-                className={`filter-pill ${statusFilter === 'wordpress' ? 'active' : ''}`}
-                onClick={() => setStatusFilter('wordpress')}
-              >
-                WordPress
-              </button>
-              <button
                 className={`filter-pill ${statusFilter === 'medium' ? 'active' : ''}`}
                 onClick={() => setStatusFilter('medium')}
               >
                 Medium
+              </button>
+              <button
+                className={`filter-pill ${statusFilter === 'devto' ? 'active' : ''}`}
+                onClick={() => setStatusFilter('devto')}
+              >
+                Dev.to
+              </button>
+              <button
+                className={`filter-pill ${statusFilter === 'hashnode' ? 'active' : ''}`}
+                onClick={() => setStatusFilter('hashnode')}
+              >
+                Hashnode
+              </button>
+              <button
+                className={`filter-pill ${statusFilter === 'wordpress' ? 'active' : ''}`}
+                onClick={() => setStatusFilter('wordpress')}
+              >
+                WordPress
               </button>
               <button
                 className={`filter-pill ${statusFilter === 'googleSites' ? 'active' : ''}`}
@@ -521,8 +566,10 @@ export default function SeoDashboard() {
           ) : (
             <div className="seo-posts-grid">
               {posts.map(post => {
-                const wpPub = post.platformPublications?.wordpress;
                 const medPub = post.platformPublications?.medium;
+                const devPub = post.platformPublications?.devto;
+                const hashPub = post.platformPublications?.hashnode;
+                const wpPub = post.platformPublications?.wordpress;
                 const gsPub = post.platformPublications?.googleSites;
 
                 return (
@@ -562,10 +609,27 @@ export default function SeoDashboard() {
                     {/* Platform publication status */}
                     <div className="post-platforms-status">
                       <div className="platform-pub-indicator">
-                        <span className="platform-name">WordPress:</span>
-                        {wpPub?.status === 'published' ? (
-                          <a href={wpPub.url} target="_blank" rel="noopener noreferrer" className="pub-link live">
+                        <span className="platform-name">Medium:</span>
+                        {medPub?.status === 'published' ? (
+                          <a href={medPub.url} target="_blank" rel="noopener noreferrer" className="pub-link live">
                             Live <ExternalLink size={12} />
+                          </a>
+                        ) : medPub?.status === 'draft' ? (
+                          <span className="pub-link draft">Draft</span>
+                        ) : (
+                          <span className="pub-link pending">Not Published</span>
+                        )}
+                      </div>
+
+                      <div className="platform-pub-indicator">
+                        <span className="platform-name">Dev.to:</span>
+                        {devPub?.status === 'published' ? (
+                          <a href={devPub.url} target="_blank" rel="noopener noreferrer" className="pub-link live">
+                            Live <ExternalLink size={12} />
+                          </a>
+                        ) : devPub?.status === 'draft' ? (
+                          <a href={devPub.url || 'https://dev.to/dashboard'} target="_blank" rel="noopener noreferrer" className="pub-link draft">
+                            Draft <ExternalLink size={12} />
                           </a>
                         ) : (
                           <span className="pub-link pending">Not Published</span>
@@ -573,9 +637,22 @@ export default function SeoDashboard() {
                       </div>
 
                       <div className="platform-pub-indicator">
-                        <span className="platform-name">Medium:</span>
-                        {medPub?.status === 'published' ? (
-                          <a href={medPub.url} target="_blank" rel="noopener noreferrer" className="pub-link live">
+                        <span className="platform-name">Hashnode:</span>
+                        {hashPub?.status === 'published' ? (
+                          <a href={hashPub.url} target="_blank" rel="noopener noreferrer" className="pub-link live">
+                            Live <ExternalLink size={12} />
+                          </a>
+                        ) : hashPub?.status === 'draft' ? (
+                          <span className="pub-link draft">Draft</span>
+                        ) : (
+                          <span className="pub-link pending">Not Published</span>
+                        )}
+                      </div>
+
+                      <div className="platform-pub-indicator">
+                        <span className="platform-name">WordPress:</span>
+                        {wpPub?.status === 'published' ? (
+                          <a href={wpPub.url} target="_blank" rel="noopener noreferrer" className="pub-link live">
                             Live <ExternalLink size={12} />
                           </a>
                         ) : (
@@ -980,7 +1057,7 @@ export default function SeoDashboard() {
             <div className="integrations-header-bar">
               <div>
                 <h2>External Platform APIs & Credentials</h2>
-                <p>Configure WordPress Application Passwords, Medium Integration Tokens, and Google Sites Webhooks. Free options are supported across all 3 platforms.</p>
+                <p>Configure official free APIs for Medium, Dev.to, Hashnode, WordPress, and Google Sites. All credentials are stored securely in environment or encrypted settings.</p>
               </div>
               <button type="submit" className="seo-btn seo-btn-primary" disabled={savingSettings}>
                 {savingSettings ? 'Saving Settings...' : 'Save All Platform Credentials'}
@@ -1173,7 +1250,166 @@ export default function SeoDashboard() {
               </div>
             </div>
 
-            {/* 3. Google Sites Card */}
+            {/* 3. Dev.to Card */}
+            <div className="integration-card">
+              <div className="integration-header">
+                <div className="integration-title-box">
+                  <div className="platform-logo devto-logo">DEV</div>
+                  <div>
+                    <h3>Dev.to (Forem) API</h3>
+                    <small>Official DEV Community REST API with Canonical Links (Free)</small>
+                  </div>
+                </div>
+                <div className="platform-status-badge">
+                  {settings?.devto?.connectionStatus === 'connected' ? (
+                    <span className="badge-connected"><CheckCircle size={13} /> Connected</span>
+                  ) : settings?.devto?.connectionStatus === 'error' ? (
+                    <span className="badge-untested"><AlertCircle size={13} /> Error</span>
+                  ) : (
+                    <span className="badge-untested"><AlertCircle size={13} /> Untested</span>
+                  )}
+                </div>
+              </div>
+
+              <div className="integration-body">
+                <div className="generator-form-group">
+                  <label className="form-label">DEV Community API Key</label>
+                  <input
+                    type="password"
+                    className="seo-input"
+                    placeholder={settings?.devto?.hasApiKey ? settings.devto.apiKeyMasked : 'Paste DEV API Key...'}
+                    onChange={(e) => setSettingsFormData(prev => ({
+                      ...prev,
+                      devto: { ...prev.devto, apiKey: e.target.value }
+                    }))}
+                  />
+                  <small className="input-helper">
+                    Generate free API key in <a href="https://dev.to/settings/extensions" target="_blank" rel="noreferrer">Dev.to &rarr; Settings &rarr; Extensions &rarr; DEV Community API Keys</a>.
+                  </small>
+                </div>
+
+                <div className="generator-form-group">
+                  <label className="form-label">Default Publish Status</label>
+                  <select
+                    className="seo-select"
+                    value={settingsFormData?.devto?.defaultStatus || 'draft'}
+                    onChange={(e) => setSettingsFormData(prev => ({
+                      ...prev,
+                      devto: { ...prev.devto, defaultStatus: e.target.value }
+                    }))}
+                  >
+                    <option value="draft">Draft (Review on Dev.to dashboard before publicizing)</option>
+                    <option value="published">Published (Publish immediately live)</option>
+                  </select>
+                </div>
+
+                {platformTestFeedback.devto && (
+                  <div className={`platform-test-alert ${platformTestFeedback.devto.type}`}>
+                    {platformTestFeedback.devto.message}
+                  </div>
+                )}
+
+                <button
+                  type="button"
+                  className="seo-btn seo-btn-outline"
+                  onClick={() => handleTestConnection('devto')}
+                  disabled={testingPlatform === 'devto'}
+                >
+                  <RefreshCw size={14} className={testingPlatform === 'devto' ? 'spin-icon' : ''} />
+                  Test Dev.to Connection
+                </button>
+              </div>
+            </div>
+
+            {/* 4. Hashnode Card */}
+            <div className="integration-card">
+              <div className="integration-header">
+                <div className="integration-title-box">
+                  <div className="platform-logo hashnode-logo">HN</div>
+                  <div>
+                    <h3>Hashnode GraphQL API</h3>
+                    <small>Official Hashnode Engineering Blogs API (Free)</small>
+                  </div>
+                </div>
+                <div className="platform-status-badge">
+                  {settings?.hashnode?.connectionStatus === 'connected' ? (
+                    <span className="badge-connected"><CheckCircle size={13} /> Connected</span>
+                  ) : settings?.hashnode?.connectionStatus === 'error' ? (
+                    <span className="badge-untested"><AlertCircle size={13} /> Error</span>
+                  ) : (
+                    <span className="badge-untested"><AlertCircle size={13} /> Untested</span>
+                  )}
+                </div>
+              </div>
+
+              <div className="integration-body">
+                <div className="generator-form-group">
+                  <label className="form-label">Personal Access Token</label>
+                  <input
+                    type="password"
+                    className="seo-input"
+                    placeholder={settings?.hashnode?.hasToken ? settings.hashnode.accessTokenMasked : 'Paste Hashnode Personal Access Token...'}
+                    onChange={(e) => setSettingsFormData(prev => ({
+                      ...prev,
+                      hashnode: { ...prev.hashnode, accessToken: e.target.value }
+                    }))}
+                  />
+                  <small className="input-helper">
+                    Generate in <a href="https://hashnode.com/settings/developer" target="_blank" rel="noreferrer">Hashnode &rarr; Account Settings &rarr; Developer &rarr; Access Tokens</a>.
+                  </small>
+                </div>
+
+                <div className="generator-form-group">
+                  <label className="form-label">Hashnode Publication ID</label>
+                  <input
+                    type="text"
+                    className="seo-input"
+                    placeholder="e.g. 64abc123def456... (from blog dashboard URL or settings)"
+                    value={settingsFormData?.hashnode?.publicationId || ''}
+                    onChange={(e) => setSettingsFormData(prev => ({
+                      ...prev,
+                      hashnode: { ...prev.hashnode, publicationId: e.target.value }
+                    }))}
+                  />
+                  <small className="input-helper">
+                    Found in your Hashnode publication dashboard URL or publication settings.
+                  </small>
+                </div>
+
+                <div className="generator-form-group">
+                  <label className="form-label">Default Publish Status</label>
+                  <select
+                    className="seo-select"
+                    value={settingsFormData?.hashnode?.defaultStatus || 'draft'}
+                    onChange={(e) => setSettingsFormData(prev => ({
+                      ...prev,
+                      hashnode: { ...prev.hashnode, defaultStatus: e.target.value }
+                    }))}
+                  >
+                    <option value="draft">Draft (Save to publication drafts)</option>
+                    <option value="published">Published (Publish immediately live)</option>
+                  </select>
+                </div>
+
+                {platformTestFeedback.hashnode && (
+                  <div className={`platform-test-alert ${platformTestFeedback.hashnode.type}`}>
+                    {platformTestFeedback.hashnode.message}
+                  </div>
+                )}
+
+                <button
+                  type="button"
+                  className="seo-btn seo-btn-outline"
+                  onClick={() => handleTestConnection('hashnode')}
+                  disabled={testingPlatform === 'hashnode'}
+                >
+                  <RefreshCw size={14} className={testingPlatform === 'hashnode' ? 'spin-icon' : ''} />
+                  Test Hashnode Connection
+                </button>
+              </div>
+            </div>
+
+            {/* 5. Google Sites Card */}
             <div className="integration-card">
               <div className="integration-header">
                 <div className="integration-title-box">
@@ -1380,19 +1616,37 @@ export default function SeoDashboard() {
                   <label className="platform-label-check">
                     <input
                       type="checkbox"
-                      checked={selectedPlatforms.wordpress}
-                      onChange={(e) => setSelectedPlatforms(p => ({ ...p, wordpress: e.target.checked }))}
+                      checked={selectedPlatforms.medium}
+                      onChange={(e) => setSelectedPlatforms(p => ({ ...p, medium: e.target.checked }))}
                     />
-                    <span>WordPress</span>
+                    <span>Medium</span>
                   </label>
 
                   <label className="platform-label-check">
                     <input
                       type="checkbox"
-                      checked={selectedPlatforms.medium}
-                      onChange={(e) => setSelectedPlatforms(p => ({ ...p, medium: e.target.checked }))}
+                      checked={selectedPlatforms.devto}
+                      onChange={(e) => setSelectedPlatforms(p => ({ ...p, devto: e.target.checked }))}
                     />
-                    <span>Medium</span>
+                    <span>Dev.to</span>
+                  </label>
+
+                  <label className="platform-label-check">
+                    <input
+                      type="checkbox"
+                      checked={selectedPlatforms.hashnode}
+                      onChange={(e) => setSelectedPlatforms(p => ({ ...p, hashnode: e.target.checked }))}
+                    />
+                    <span>Hashnode</span>
+                  </label>
+
+                  <label className="platform-label-check">
+                    <input
+                      type="checkbox"
+                      checked={selectedPlatforms.wordpress}
+                      onChange={(e) => setSelectedPlatforms(p => ({ ...p, wordpress: e.target.checked }))}
+                    />
+                    <span>WordPress</span>
                   </label>
 
                   <label className="platform-label-check">
@@ -1425,7 +1679,7 @@ export default function SeoDashboard() {
                 </div>
               </div>
 
-              {/* View toggle (Rendered HTML vs Markdown) */}
+              {/* View toggle (Rendered HTML vs Markdown vs Manual Copy Helper) */}
               <div className="modal-view-mode-tabs">
                 <button
                   className={`mode-tab ${modalViewMode === 'preview' ? 'active' : ''}`}
@@ -1439,6 +1693,12 @@ export default function SeoDashboard() {
                 >
                   <Code size={14} /> Raw Markdown
                 </button>
+                <button
+                  className={`mode-tab ${modalViewMode === 'manual' ? 'active' : ''}`}
+                  onClick={() => setModalViewMode('manual')}
+                >
+                  <Copy size={14} /> 1-Click Manual Publish Helper
+                </button>
               </div>
 
               <div className="modal-content-container">
@@ -1447,8 +1707,183 @@ export default function SeoDashboard() {
                     className="modal-rendered-markdown markdown-rendered"
                     dangerouslySetInnerHTML={{ __html: activeModalPost.contentHtml }}
                   />
-                ) : (
+                ) : modalViewMode === 'markdown' ? (
                   <pre className="modal-raw-markdown">{activeModalPost.contentMarkdown}</pre>
+                ) : (
+                  <div className="manual-publishing-helper">
+                    <div className="helper-lead-banner">
+                      <Zap size={18} className="lead-icon" />
+                      <div>
+                        <strong>1-Click Manual Publishing Hub</strong>
+                        <p>No API key? You can publish in seconds manually! Each payload below includes technical accuracy, relevant backlink anchors, and canonical URL settings to guarantee full SEO credit for LearnForge.</p>
+                      </div>
+                    </div>
+
+                    <div className="manual-cards-grid">
+                      {/* DEV.TO CARD */}
+                      <div className="manual-platform-card">
+                        <div className="manual-card-header">
+                          <div className="platform-badge-group">
+                            <span className="platform-logo devto-logo">DEV</span>
+                            <div>
+                              <h4>Dev.to (Forem)</h4>
+                              <small>Frontmatter + Markdown</small>
+                            </div>
+                          </div>
+                          <a
+                            href={manualPayloads?.devto?.targetUrl || 'https://dev.to/new'}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="editor-launch-btn"
+                          >
+                            Open Dev.to Editor <ExternalLink size={12} />
+                          </a>
+                        </div>
+
+                        <div className="manual-card-body">
+                          <p className="manual-instructions">
+                            Dev.to automatically parses YAML frontmatter for title, canonical link, and tags:
+                          </p>
+                          <div className="manual-btn-group">
+                            <button
+                              className="copy-snippet-btn primary"
+                              onClick={() => copyToClipboard(manualPayloads?.devto?.markdown || activeModalPost.contentMarkdown, 'devto_all')}
+                            >
+                              {copiedKey === 'devto_all' ? <Check size={13} /> : <Copy size={13} />}
+                              {copiedKey === 'devto_all' ? 'Copied Full Article!' : 'Copy Full Article (With Frontmatter)'}
+                            </button>
+                            <button
+                              className="copy-snippet-btn"
+                              onClick={() => copyToClipboard(manualPayloads?.devto?.canonicalUrl || activeModalPost.canonicalUrl, 'devto_canon')}
+                            >
+                              {copiedKey === 'devto_canon' ? <Check size={13} /> : <Copy size={13} />}
+                              {copiedKey === 'devto_canon' ? 'Copied!' : 'Copy Canonical URL'}
+                            </button>
+                          </div>
+
+                          <div className="payload-preview-box">
+                            <span className="box-label">Frontmatter Preview</span>
+                            <pre>{manualPayloads?.devto?.frontmatter || `---
+title: "${activeModalPost.title}"
+published: false
+canonical_url: "${activeModalPost.canonicalUrl || 'https://learnforge-learning-platform.onrender.com/'}"
+tags: ${(activeModalPost.tags || ['programming']).slice(0, 4).join(', ')}
+---`}</pre>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* HASHNODE CARD */}
+                      <div className="manual-platform-card">
+                        <div className="manual-card-header">
+                          <div className="platform-badge-group">
+                            <span className="platform-logo hashnode-logo">HN</span>
+                            <div>
+                              <h4>Hashnode</h4>
+                              <small>Markdown + Advanced Canonical</small>
+                            </div>
+                          </div>
+                          <a
+                            href={manualPayloads?.hashnode?.targetUrl || 'https://hashnode.com/draft'}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="editor-launch-btn"
+                          >
+                            Open Hashnode Drafts <ExternalLink size={12} />
+                          </a>
+                        </div>
+
+                        <div className="manual-card-body">
+                          <p className="manual-instructions">
+                            Paste markdown body into Hashnode. In "Advanced Settings", verify Canonical URL:
+                          </p>
+                          <div className="manual-btn-group">
+                            <button
+                              className="copy-snippet-btn primary"
+                              onClick={() => copyToClipboard(manualPayloads?.hashnode?.markdown || activeModalPost.contentMarkdown, 'hash_body')}
+                            >
+                              {copiedKey === 'hash_body' ? <Check size={13} /> : <Copy size={13} />}
+                              {copiedKey === 'hash_body' ? 'Copied Markdown!' : 'Copy Markdown Content'}
+                            </button>
+                            <button
+                              className="copy-snippet-btn"
+                              onClick={() => copyToClipboard(manualPayloads?.hashnode?.title || activeModalPost.title, 'hash_title')}
+                            >
+                              {copiedKey === 'hash_title' ? <Check size={13} /> : <Copy size={13} />}
+                              {copiedKey === 'hash_title' ? 'Copied!' : 'Copy Title'}
+                            </button>
+                            <button
+                              className="copy-snippet-btn"
+                              onClick={() => copyToClipboard(manualPayloads?.hashnode?.canonicalUrl || activeModalPost.canonicalUrl, 'hash_canon')}
+                            >
+                              {copiedKey === 'hash_canon' ? <Check size={13} /> : <Copy size={13} />}
+                              {copiedKey === 'hash_canon' ? 'Copied!' : 'Copy Canonical URL'}
+                            </button>
+                          </div>
+
+                          <div className="payload-preview-box">
+                            <span className="box-label">Canonical URL to paste in Hashnode Advanced:</span>
+                            <code>{manualPayloads?.hashnode?.canonicalUrl || activeModalPost.canonicalUrl || 'N/A'}</code>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* MEDIUM CARD */}
+                      <div className="manual-platform-card">
+                        <div className="manual-card-header">
+                          <div className="platform-badge-group">
+                            <span className="platform-logo med-logo">M</span>
+                            <div>
+                              <h4>Medium</h4>
+                              <small>Rich Text / HTML + Canonical</small>
+                            </div>
+                          </div>
+                          <a
+                            href={manualPayloads?.medium?.targetUrl || 'https://medium.com/new-story'}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="editor-launch-btn"
+                          >
+                            Open Medium Story <ExternalLink size={12} />
+                          </a>
+                        </div>
+
+                        <div className="manual-card-body">
+                          <p className="manual-instructions">
+                            Paste into Medium. In <code>... &rarr; More settings &rarr; Advanced settings</code>, check "This story was originally published elsewhere":
+                          </p>
+                          <div className="manual-btn-group">
+                            <button
+                              className="copy-snippet-btn primary"
+                              onClick={() => copyToClipboard(activeModalPost.contentMarkdown, 'med_md')}
+                            >
+                              {copiedKey === 'med_md' ? <Check size={13} /> : <Copy size={13} />}
+                              {copiedKey === 'med_md' ? 'Copied Markdown!' : 'Copy Markdown Content'}
+                            </button>
+                            <button
+                              className="copy-snippet-btn"
+                              onClick={() => copyToClipboard(manualPayloads?.medium?.title || activeModalPost.title, 'med_title')}
+                            >
+                              {copiedKey === 'med_title' ? <Check size={13} /> : <Copy size={13} />}
+                              {copiedKey === 'med_title' ? 'Copied!' : 'Copy Title'}
+                            </button>
+                            <button
+                              className="copy-snippet-btn"
+                              onClick={() => copyToClipboard(manualPayloads?.medium?.canonicalUrl || activeModalPost.canonicalUrl, 'med_canon')}
+                            >
+                              {copiedKey === 'med_canon' ? <Check size={13} /> : <Copy size={13} />}
+                              {copiedKey === 'med_canon' ? 'Copied!' : 'Copy Canonical URL'}
+                            </button>
+                          </div>
+
+                          <div className="payload-preview-box">
+                            <span className="box-label">Tags to enter (up to 5):</span>
+                            <code>{(manualPayloads?.medium?.tags || activeModalPost.tags || []).join(', ')}</code>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 )}
               </div>
             </div>
@@ -2526,6 +2961,8 @@ export default function SeoDashboard() {
 
         .wp-logo { background: #21759b; color: white; }
         .med-logo { background: #00ab6b; color: white; }
+        .devto-logo { background: #0a0a0a; color: white; border: 1px solid #444; }
+        .hashnode-logo { background: #2942ff; color: white; }
         .gs-logo { background: #4285f4; color: white; }
         .ai-logo { background: linear-gradient(135deg, #8b5cf6, #ec4899); color: white; }
 
@@ -2901,6 +3338,192 @@ export default function SeoDashboard() {
           color: inherit;
           font-size: 1.2rem;
           cursor: pointer;
+        }
+
+        /* Manual Publishing Helper & Copy Cards */
+        .manual-publishing-helper {
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+        }
+
+        .helper-lead-banner {
+          display: flex;
+          align-items: flex-start;
+          gap: 14px;
+          background: rgba(30, 41, 59, 0.7);
+          border: 1px solid rgba(56, 189, 248, 0.3);
+          border-radius: 12px;
+          padding: 16px 20px;
+          color: #e2e8f0;
+        }
+
+        .lead-icon {
+          color: #38bdf8;
+          flex-shrink: 0;
+          margin-top: 2px;
+        }
+
+        .helper-lead-banner strong {
+          display: block;
+          font-size: 0.95rem;
+          color: #38bdf8;
+          margin-bottom: 4px;
+        }
+
+        .helper-lead-banner p {
+          margin: 0;
+          font-size: 0.84rem;
+          color: #94a3b8;
+          line-height: 1.5;
+        }
+
+        .manual-cards-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+          gap: 20px;
+        }
+
+        .manual-platform-card {
+          background: rgba(15, 23, 42, 0.85);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 14px;
+          padding: 20px;
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+
+        .manual-card-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding-bottom: 12px;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .platform-badge-group {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .platform-badge-group h4 {
+          margin: 0;
+          font-size: 0.98rem;
+          color: #ffffff;
+        }
+
+        .platform-badge-group small {
+          color: #94a3b8;
+          font-size: 0.75rem;
+        }
+
+        .editor-launch-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          font-size: 0.76rem;
+          font-weight: 600;
+          color: #38bdf8;
+          background: rgba(56, 189, 248, 0.1);
+          border: 1px solid rgba(56, 189, 248, 0.25);
+          padding: 5px 10px;
+          border-radius: 6px;
+          text-decoration: none;
+          transition: all 0.2s ease;
+        }
+
+        .editor-launch-btn:hover {
+          background: rgba(56, 189, 248, 0.2);
+          color: #ffffff;
+        }
+
+        .manual-card-body {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .manual-instructions {
+          font-size: 0.82rem;
+          color: #cbd5e1;
+          margin: 0;
+          line-height: 1.45;
+        }
+
+        .manual-instructions code {
+          background: rgba(255, 255, 255, 0.08);
+          padding: 2px 5px;
+          border-radius: 4px;
+          color: #38bdf8;
+        }
+
+        .manual-btn-group {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .copy-snippet-btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          padding: 8px 14px;
+          border-radius: 8px;
+          font-size: 0.82rem;
+          font-weight: 600;
+          cursor: pointer;
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          background: rgba(30, 41, 59, 0.7);
+          color: #f1f5f9;
+          transition: all 0.2s ease;
+        }
+
+        .copy-snippet-btn:hover {
+          background: rgba(51, 65, 85, 0.9);
+          border-color: rgba(255, 255, 255, 0.25);
+        }
+
+        .copy-snippet-btn.primary {
+          background: linear-gradient(135deg, #2563eb, #1d4ed8);
+          border-color: #3b82f6;
+          color: #ffffff;
+        }
+
+        .copy-snippet-btn.primary:hover {
+          background: linear-gradient(135deg, #1d4ed8, #1e40af);
+        }
+
+        .payload-preview-box {
+          background: #020617;
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 8px;
+          padding: 12px;
+          font-size: 0.76rem;
+        }
+
+        .payload-preview-box .box-label {
+          display: block;
+          color: #94a3b8;
+          font-size: 0.72rem;
+          margin-bottom: 6px;
+          font-weight: 500;
+        }
+
+        .payload-preview-box pre {
+          margin: 0;
+          white-space: pre-wrap;
+          font-family: monospace;
+          color: #a5f3fc;
+          max-height: 120px;
+          overflow-y: auto;
+        }
+
+        .payload-preview-box code {
+          color: #38bdf8;
+          word-break: break-all;
         }
 
         .spin-icon {

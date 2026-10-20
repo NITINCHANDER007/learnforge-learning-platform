@@ -2,7 +2,7 @@ const rawBase = import.meta.env.VITE_API_URL || '';
 const API_BASE = rawBase ? (rawBase.endsWith('/api') ? rawBase : `${rawBase.replace(/\/$/, '')}/api`) : '/api';
 
 function getHeaders(customHeaders = {}) {
-  const token = localStorage.getItem('datadrix_token');
+  const token = localStorage.getItem('learnforge_token') || localStorage.getItem('datadrix_token');
   const headers = {
     'Content-Type': 'application/json',
     ...customHeaders
@@ -16,9 +16,10 @@ function getHeaders(customHeaders = {}) {
 async function request(endpoint, options = {}) {
   const url = `${API_BASE}${endpoint}`;
   const isFormData = options.body instanceof FormData;
+  const token = localStorage.getItem('learnforge_token') || localStorage.getItem('datadrix_token');
 
   const headers = isFormData
-    ? { ...(localStorage.getItem('datadrix_token') ? { 'Authorization': `Bearer ${localStorage.getItem('datadrix_token')}` } : {}) }
+    ? { ...(token ? { 'Authorization': `Bearer ${token}` } : {}) }
     : getHeaders(options.headers);
 
   const config = {
@@ -108,6 +109,7 @@ export const api = {
   testSeoPlatformConnection: (platform, body = {}) => request(`/seo/settings/test-connection/${platform}`, { method: 'POST', body: JSON.stringify(body) }),
   triggerSeoAutoPilot: () => request('/seo/autopilot/trigger', { method: 'POST' }),
   getSeoSubjectsAndLessons: () => request('/seo/subjects-and-lessons'),
-  getGoogleAppsScriptCode: () => request('/seo/google-apps-script-code')
+  getGoogleAppsScriptCode: () => request('/seo/google-apps-script-code'),
+  getSeoManualPayloads: (id) => request(`/seo/posts/${id}/manual-payloads`)
 };
 

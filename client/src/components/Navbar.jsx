@@ -138,7 +138,7 @@ export default function Navbar({ onOpenSearch }) {
           <Link to="/" className="navbar-brand">
             <span className="brand-logo-glow">⚡</span>
             <div className="brand-text">
-              <span className="brand-title">DataDrix</span>
+              <span className="brand-title">LearnForge</span>
             </div>
           </Link>
 
@@ -281,7 +281,7 @@ export default function Navbar({ onOpenSearch }) {
               <Link
                 to="/admin"
                 className={`nav-link ${location.pathname === '/admin' ? 'active' : ''}`}
-                title="DataDrix Platform Administration Console"
+                title="LearnForge Platform Administration Console"
               >
                 <Shield size={17} />
                 <span>Admin</span>

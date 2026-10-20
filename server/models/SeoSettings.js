@@ -61,7 +61,9 @@ const SeoSettingsSchema = new mongoose.Schema({
     platforms: {
       wordpress: { type: Boolean, default: false },
       medium: { type: Boolean, default: false },
-      googleSites: { type: Boolean, default: false }
+      googleSites: { type: Boolean, default: false },
+      devto: { type: Boolean, default: false },
+      hashnode: { type: Boolean, default: false }
     },
     targetSubjects: [{
       type: String
@@ -194,6 +196,69 @@ const SeoSettingsSchema = new mongoose.Schema({
     },
     lastError: String
   },
+  // Dev.to REST API (Official free API key)
+  devto: {
+    enabled: {
+      type: Boolean,
+      default: false
+    },
+    apiKey: {
+      type: String,
+      default: '',
+      trim: true
+    },
+    username: {
+      type: String,
+      default: '',
+      trim: true
+    },
+    defaultStatus: {
+      type: String,
+      enum: ['draft', 'published'],
+      default: 'draft' // Safety: Draft first
+    },
+    lastConnectedAt: Date,
+    connectionStatus: {
+      type: String,
+      enum: ['untested', 'connected', 'error'],
+      default: 'untested'
+    },
+    lastError: String
+  },
+  // Hashnode GraphQL API (Official free personal access token)
+  hashnode: {
+    enabled: {
+      type: Boolean,
+      default: false
+    },
+    accessToken: {
+      type: String,
+      default: '',
+      trim: true
+    },
+    publicationId: {
+      type: String,
+      default: '',
+      trim: true
+    },
+    username: {
+      type: String,
+      default: '',
+      trim: true
+    },
+    defaultStatus: {
+      type: String,
+      enum: ['draft', 'published'],
+      default: 'draft' // Safety: Draft first
+    },
+    lastConnectedAt: Date,
+    connectionStatus: {
+      type: String,
+      enum: ['untested', 'connected', 'error'],
+      default: 'untested'
+    },
+    lastError: String
+  },
   // AI Generation Engine (Smart Engine default + Free Gemini API option)
   aiEngine: {
     provider: {
@@ -239,6 +304,9 @@ const SeoSettingsSchema = new mongoose.Schema({
 
 // Helper to get or create settings singleton
 SeoSettingsSchema.statics.getSettings = async function() {
+  if (mongoose.connection.readyState !== 1) {
+    return new this({ singletonKey: 'GLOBAL_SEO_CONFIG' });
+  }
   let settings = await this.findOne({ singletonKey: 'GLOBAL_SEO_CONFIG' });
   if (!settings) {
     settings = await this.create({ singletonKey: 'GLOBAL_SEO_CONFIG' });

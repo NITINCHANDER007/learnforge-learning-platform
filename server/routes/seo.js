@@ -14,6 +14,9 @@ const {
   testWordPressConnection,
   testMediumConnection,
   testGoogleSitesConnection,
+  testDevToConnection,
+  testHashnodeConnection,
+  prepareManualPublishingPayload,
   testGeminiConnection
 } = require('../services/publisherService');
 const {
@@ -42,6 +45,8 @@ router.get('/stats', async (req, res) => {
     const wpCount = await BlogPost.countDocuments({ 'platformPublications.wordpress.status': 'published' });
     const medCount = await BlogPost.countDocuments({ 'platformPublications.medium.status': 'published' });
     const gsCount = await BlogPost.countDocuments({ 'platformPublications.googleSites.status': 'published' });
+    const devCount = await BlogPost.countDocuments({ 'platformPublications.devto.status': 'published' });
+    const hashCount = await BlogPost.countDocuments({ 'platformPublications.hashnode.status': 'published' });
 
     // Aggregate backlinks count and average uniqueness
     const agg = await BlogPost.aggregate([
@@ -77,7 +82,9 @@ router.get('/stats', async (req, res) => {
         platforms: {
           wordpress: wpCount,
           medium: medCount,
-          googleSites: gsCount
+          googleSites: gsCount,
+          devto: devCount,
+          hashnode: hashCount
         },
         autoPilot: {
           enabled: settings.autoPilot.enabled,
@@ -113,6 +120,10 @@ router.get('/posts', async (req, res) => {
         query['platformPublications.medium.status'] = 'published';
       } else if (status === 'googleSites') {
         query['platformPublications.googleSites.status'] = 'published';
+      } else if (status === 'devto') {
+        query['platformPublications.devto.status'] = 'published';
+      } else if (status === 'hashnode') {
+        query['platformPublications.hashnode.status'] = 'published';
       } else {
         query.status = status;
       }
@@ -162,6 +173,23 @@ router.get('/posts/:id', async (req, res) => {
       return res.status(404).json({ success: false, message: 'Blog post not found' });
     }
     res.json({ success: true, post });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+/**
+ * @route   GET /api/seo/posts/:id/manual-payloads
+ * @desc    Get pre-formatted payloads for manual publishing on Medium, Dev.to, and Hashnode
+ */
+router.get('/posts/:id/manual-payloads', async (req, res) => {
+  try {
+    const post = await BlogPost.findById(req.params.id);
+    if (!post) {
+      return res.status(404).json({ success: false, message: 'Blog post not found' });
+    }
+    const payloads = prepareManualPublishingPayload(post);
+    res.json({ success: true, payloads });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -392,6 +420,14 @@ router.get('/settings', async (req, res) => {
       masked.medium.integrationTokenMasked = `${masked.medium.integrationToken.slice(0, 4)}••••••••${masked.medium.integrationToken.slice(-4)}`;
       masked.medium.hasToken = true;
     }
+    if (masked.devto?.apiKey) {
+      masked.devto.apiKeyMasked = `${masked.devto.apiKey.slice(0, 4)}••••••••${masked.devto.apiKey.slice(-4)}`;
+      masked.devto.hasKey = true;
+    }
+    if (masked.hashnode?.accessToken) {
+      masked.hashnode.accessTokenMasked = `${masked.hashnode.accessToken.slice(0, 4)}••••••••${masked.hashnode.accessToken.slice(-4)}`;
+      masked.hashnode.hasToken = true;
+    }
     if (masked.aiEngine?.geminiApiKey) {
       masked.aiEngine.geminiApiKeyMasked = `${masked.aiEngine.geminiApiKey.slice(0, 4)}••••••••${masked.aiEngine.geminiApiKey.slice(-4)}`;
       masked.aiEngine.hasApiKey = true;
@@ -410,7 +446,7 @@ router.get('/settings', async (req, res) => {
 router.put('/settings', async (req, res) => {
   try {
     const settings = await SeoSettings.getSettings();
-    const { websiteBaseUrl, websiteName, autoPilot, wordpress, medium, googleSites, aiEngine, antiDuplication } = req.body;
+    const { websiteBaseUrl, websiteName, autoPilot, wordpress, medium, googleSites, devto, hashnode, aiEngine, antiDuplication } = req.body;
 
     if (websiteBaseUrl !== undefined) settings.websiteBaseUrl = websiteBaseUrl;
     if (websiteName !== undefined) settings.websiteName = websiteName;
@@ -440,6 +476,21 @@ router.put('/settings', async (req, res) => {
       if (googleSites.siteUrl !== undefined) settings.googleSites.siteUrl = googleSites.siteUrl;
       if (googleSites.secretToken !== undefined) settings.googleSites.secretToken = googleSites.secretToken;
       if (googleSites.method !== undefined) settings.googleSites.method = googleSites.method;
+    }
+
+    // Dev.to
+    if (devto) {
+      if (devto.enabled !== undefined) settings.devto.enabled = devto.enabled;
+      if (devto.apiKey) settings.devto.apiKey = devto.apiKey;
+      if (devto.defaultStatus !== undefined) settings.devto.defaultStatus = devto.defaultStatus;
+    }
+
+    // Hashnode
+    if (hashnode) {
+      if (hashnode.enabled !== undefined) settings.hashnode.enabled = hashnode.enabled;
+      if (hashnode.accessToken) settings.hashnode.accessToken = hashnode.accessToken;
+      if (hashnode.publicationId !== undefined) settings.hashnode.publicationId = hashnode.publicationId;
+      if (hashnode.defaultStatus !== undefined) settings.hashnode.defaultStatus = hashnode.defaultStatus;
     }
 
     // AI Engine
@@ -510,6 +561,18 @@ router.post('/settings/test-connection/:platform', async (req, res) => {
       settings.googleSites.connectionStatus = 'connected';
       settings.googleSites.lastConnectedAt = new Date();
       settings.googleSites.lastError = null;
+    } else if (platform === 'devto') {
+      result = await testDevToConnection(credentials);
+      settings.devto.connectionStatus = 'connected';
+      settings.devto.lastConnectedAt = new Date();
+      settings.devto.lastError = null;
+      if (result.username) settings.devto.username = result.username;
+    } else if (platform === 'hashnode') {
+      result = await testHashnodeConnection(credentials);
+      settings.hashnode.connectionStatus = 'connected';
+      settings.hashnode.lastConnectedAt = new Date();
+      settings.hashnode.lastError = null;
+      if (result.username) settings.hashnode.username = result.username;
     } else if (platform === 'gemini') {
       const apiKey = credentials.geminiApiKey || settings.aiEngine?.geminiApiKey;
       const model = credentials.modelName || settings.aiEngine?.modelName || 'gemini-1.5-flash';
