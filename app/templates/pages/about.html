@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}About · LearnForge{% endblock %}
+{% block content %}
+<div class="content__body" style="max-width: 800px; margin: 0 auto; padding: var(--space-8) var(--space-4);">
+    <h1 class="lesson__title" style="font-size: 32px; margin-bottom: var(--space-4);">About LearnForge</h1>
+    <p class="hero__subtitle" style="margin-bottom: var(--space-6);">Learn. Build. Master.</p>
+
+    <div class="lesson__content">
+        <p>
+            LearnForge is an LMS-style learning platform inspired by the clarity of W3Schools, the depth of GitBook, and the structured roadmaps of Roadmap.sh.
+            Our mission is simple: provide clean, distraction-free, self-paced programming and data science education.
+        </p>
+
+        <h2>What Makes LearnForge Different?</h2>
+        <ul>
+            <li><strong>Markdown-First Philosophy:</strong> Lessons are authored as clean Markdown files, ensuring rapid load times and zero advertising bloat.</li>
+            <li><strong>Curated Curriculum:</strong> 14 core subjects ranging from Python, SQL, and Web Development to Data Visualization, Machine Learning, and Power BI.</li>
+            <li><strong>Practical Progress Tracking:</strong> Keep track of completed lessons, bookmark essential guides, and write personal notes alongside every lesson.</li>
+            <li><strong>Privacy Focused:</strong> Your notes and progress are strictly yours. We do not track you across the web.</li>
+        </ul>
+
+        <h2>Technology</h2>
+        <p>
+            LearnForge is built with Flask 3, Jinja2 templates, vanilla CSS with custom design tokens, SQLite/PostgreSQL, and responsive design for every device.
+        </p>
+    </div>
+</div>
+{% endblock %}

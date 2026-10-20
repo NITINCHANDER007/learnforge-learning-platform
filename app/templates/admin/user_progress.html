@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Progress for {{ user.name }} · LearnForge{% endblock %}
+{% block content %}
+<div class="dash-layout">
+    {% include "admin/_nav.html" %}
+
+    <div>
+        <p><a href="{{ url_for('admin.users') }}">&larr; Back to Users</a></p>
+
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: var(--space-4);">
+            <h1 class="lesson__title" style="font-size: 26px; margin-bottom: 0;">Progress: {{ user.name }}</h1>
+            <span style="color: var(--color-text-secondary);">{{ user.email }} · Joined {{ user.created_at.strftime('%b %d, %Y') }}</span>
+        </div>
+
+        <div class="dash-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); margin-bottom: var(--space-6);">
+            <div class="dash-card">
+                <div class="dash-stat__num">{{ completions|length }}</div>
+                <div class="dash-stat__label">Completed Lessons</div>
+            </div>
+            <div class="dash-card">
+                <div class="dash-stat__num">{{ bookmarks|length }}</div>
+                <div class="dash-stat__label">Bookmarks</div>
+            </div>
+            <div class="dash-card">
+                <div class="dash-stat__num">{{ notes|length }}</div>
+                <div class="dash-stat__label">Notes Taken</div>
+            </div>
+            <div class="dash-card">
+                <div class="dash-stat__num">
+                    <span class="badge {{ 'badge-student' if user.is_active else 'badge-admin' }}">
+                        {{ 'Active' if user.is_active else 'Inactive' }}
+                    </span>
+                </div>
+                <div class="dash-stat__label">Status ({{ user.role }})</div>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6);">
+            <div class="dash-card">
+                <h2 style="font-size: 18px; margin-bottom: var(--space-3);">Completed Lessons</h2>
+                {% if completions %}
+                    <table class="dash-table">
+                        <tr><th>Lesson Path</th><th>Completed At</th></tr>
+                        {% for p in completions %}
+                        <tr>
+                            <td><code>{{ p.lesson_path }}</code></td>
+                            <td>{{ p.completed_at.strftime('%b %d, %Y %H:%M') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                {% else %}
+                    <p style="color: var(--color-text-secondary);">No completed lessons yet.</p>
+                {% endif %}
+            </div>
+
+            <div class="dash-card">
+                <h2 style="font-size: 18px; margin-bottom: var(--space-3);">Bookmarks</h2>
+                {% if bookmarks %}
+                    <table class="dash-table">
+                        <tr><th>Lesson Path</th><th>Saved At</th></tr>
+                        {% for b in bookmarks %}
+                        <tr>
+                            <td><code>{{ b.lesson_path }}</code></td>
+                            <td>{{ b.created_at.strftime('%b %d, %Y') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                {% else %}
+                    <p style="color: var(--color-text-secondary);">No bookmarks saved yet.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if notes %}
+        <div class="dash-card" style="margin-top: var(--space-6);">
+            <h2 style="font-size: 18px; margin-bottom: var(--space-3);">User Notes ({{ notes|length }})</h2>
+            <table class="dash-table">
+                <tr><th>Title</th><th>Snippet</th><th>Updated</th></tr>
+                {% for n in notes %}
+                <tr>
+                    <td><strong>{{ n.title }}</strong></td>
+                    <td>{{ n.body[:120] }}{% if n.body|length > 120 %}...{% endif %}</td>
+                    <td>{{ n.updated_at.strftime('%b %d, %Y') }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,344 @@
+{% extends "base.html" %}
+
+{% block title %}Interactive Code Playground · LearnForge{% endblock %}
+
+{% block content %}
+<div class="playground-container">
+    <div class="playground-header">
+        <div class="playground-header__left">
+            <h1 class="playground-title">⚡ Interactive Playground</h1>
+            <span class="playground-tag" id="runtime-status-badge">Engine: Initializing...</span>
+        </div>
+
+        <div class="playground-controls">
+            <div class="playground-select-group">
+                <label for="lang-select">Language:</label>
+                <select id="lang-select" class="form-input" style="padding: 4px 10px; font-size: 13px;">
+                    <option value="python" selected>Python 3 (WebAssembly)</option>
+                    <option value="javascript">JavaScript (Browser)</option>
+                </select>
+            </div>
+
+            <div class="playground-select-group">
+                <label for="template-select">Templates:</label>
+                <select id="template-select" class="form-input" style="padding: 4px 10px; font-size: 13px;">
+                    <option value="hello">Hello LearnForge</option>
+                    <option value="data">Data Analysis & Stats</option>
+                    <option value="loops">Loops & List Comprehension</option>
+                    <option value="classes">OOP & Classes</option>
+                </select>
+            </div>
+
+            <button type="button" id="btn-run" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 6px;">
+                <span>▶</span> Run Code <kbd style="font-size: 10px; opacity: 0.8; margin-left: 4px;">Ctrl+Enter</kbd>
+            </button>
+            <button type="button" id="btn-clear" class="btn btn-secondary">Clear Output</button>
+        </div>
+    </div>
+
+    <div class="playground-grid">
+        <div class="playground-pane playground-pane--editor">
+            <div class="playground-pane__bar">
+                <span class="playground-pane__label">Editor (main.py)</span>
+                <span class="playground-pane__hint">Tab key inserts spaces · Ctrl+Enter to run</span>
+            </div>
+            <textarea id="code-editor" class="code-editor-textarea" spellcheck="false" placeholder="Write your code here..."># LearnForge Interactive Python Playground
+def calculate_stats(numbers):
+    avg = sum(numbers) / len(numbers)
+    return {
+        "count": len(numbers),
+        "total": sum(numbers),
+        "mean": avg,
+        "max": max(numbers),
+        "min": min(numbers)
+    }
+
+scores = [88, 92, 79, 95, 84, 100, 71]
+stats = calculate_stats(scores)
+
+print("=== LearnForge Learning Analytics ===")
+for key, value in stats.items():
+    print(f"{key.capitalize()}: {value}")
+</textarea>
+        </div>
+
+        <div class="playground-pane playground-pane--output">
+            <div class="playground-pane__bar">
+                <span class="playground-pane__label">Console Output</span>
+                <span id="exec-time" class="playground-pane__hint">Ready</span>
+            </div>
+            <pre id="console-output" class="console-output-box">Click "▶ Run Code" or press Ctrl+Enter to execute.</pre>
+        </div>
+    </div>
+</div>
+
+<style>
+.playground-container {
+    max-width: 1400px;
+    margin: var(--space-4) auto;
+    padding: 0 var(--space-4);
+}
+.playground-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    margin-bottom: var(--space-4);
+    padding-bottom: var(--space-4);
+    border-bottom: 1px solid var(--border-color);
+}
+.playground-header__left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.playground-title {
+    font-size: 24px;
+    margin: 0;
+    font-weight: 700;
+}
+.playground-tag {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: var(--color-bg-secondary, #f1f5f9);
+    color: var(--color-text-secondary, #64748b);
+    border: 1px solid var(--border-color);
+}
+.playground-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.playground-select-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--color-text-secondary);
+}
+.playground-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+    min-height: 580px;
+}
+@media (max-width: 900px) {
+    .playground-grid {
+        grid-template-columns: 1fr;
+    }
+}
+.playground-pane {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md, 8px);
+    overflow: hidden;
+    background: var(--color-card, #ffffff);
+}
+.playground-pane__bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 14px;
+    background: var(--color-bg-secondary, #f8fafc);
+    border-bottom: 1px solid var(--border-color);
+    font-size: 12px;
+}
+.playground-pane__label {
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+.playground-pane__hint {
+    color: var(--color-muted, #94a3b8);
+}
+.code-editor-textarea {
+    flex: 1;
+    width: 100%;
+    min-height: 480px;
+    padding: 16px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    background: #0f172a;
+    color: #f8fafc;
+    border: none;
+    outline: none;
+    resize: vertical;
+    tab-size: 4;
+    white-space: pre;
+}
+.console-output-box {
+    flex: 1;
+    margin: 0;
+    padding: 16px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    background: #090d16;
+    color: #38bdf8;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const editor = document.getElementById("code-editor");
+    const output = document.getElementById("console-output");
+    const runBtn = document.getElementById("btn-run");
+    const clearBtn = document.getElementById("btn-clear");
+    const langSelect = document.getElementById("lang-select");
+    const templateSelect = document.getElementById("template-select");
+    const statusBadge = document.getElementById("runtime-status-badge");
+    const execTime = document.getElementById("exec-time");
+
+    let pyodideInstance = null;
+    let pyodideLoading = false;
+
+    const templates = {
+        hello: `# LearnForge Python Playground\nprint("Welcome to LearnForge!")\nuser = "Developer"\nprint(f"Happy coding, {user}!")`,
+        data: `# Data Analysis & Stats\nscores = [88, 92, 79, 95, 84, 100, 71]\nmean = sum(scores) / len(scores)\nvariance = sum((x - mean) ** 2 for x in scores) / len(scores)\nstd_dev = variance ** 0.5\n\nprint(f"Dataset: {scores}")\nprint(f"Count:   {len(scores)}")\nprint(f"Mean:    {mean:.2f}")\nprint(f"Std Dev: {std_dev:.2f}")`,
+        loops: `# List Comprehension & Dictionary mapping\nnumbers = list(range(1, 11))\nsquares = [x**2 for x in numbers if x % 2 == 0]\nprint("Even squares:", squares)\n\nword_lengths = {word: len(word) for word in ["Data", "Drix", "Learning", "Python"]}\nprint("Word lengths:", word_lengths)`,
+        classes: `# Object Oriented Programming in LearnForge\nclass Course:\n    def __init__(self, name, lessons):\n        self.name = name\n        self.lessons = lessons\n    \n    def summary(self):\n        return f"Course: {self.name} ({len(self.lessons)} topics)"\n\npython_course = Course("Python Fundamentals", ["Variables", "Functions", "OOP"])\nprint(python_course.summary())`
+    };
+
+    templateSelect.addEventListener("change", (e) => {
+        if (templates[e.target.value]) {
+            editor.value = templates[e.target.value];
+        }
+    });
+
+    // Handle tab key in editor
+    editor.addEventListener("keydown", (e) => {
+        if (e.key === "Tab") {
+            e.preventDefault();
+            const start = editor.selectionStart;
+            const end = editor.selectionEnd;
+            editor.value = editor.value.substring(0, start) + "    " + editor.value.substring(end);
+            editor.selectionStart = editor.selectionEnd = start + 4;
+        } else if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+            e.preventDefault();
+            executeCode();
+        }
+    });
+
+    clearBtn.addEventListener("click", () => {
+        output.textContent = "";
+        execTime.textContent = "Cleared";
+    });
+
+    runBtn.addEventListener("click", executeCode);
+
+    // Initialize Python runtime (Pyodide)
+    async function loadPythonRuntime() {
+        if (pyodideInstance || pyodideLoading) return;
+        pyodideLoading = true;
+        statusBadge.textContent = "Engine: Loading Python Wasm...";
+        try {
+            if (typeof loadPyodide === "undefined") {
+                const script = document.createElement("script");
+                script.src = "https://cdn.jsdelivr.net/pyodide/v0.25.1/full/pyodide.js";
+                script.onload = async () => {
+                    pyodideInstance = await loadPyodide();
+                    statusBadge.textContent = "Engine: Python 3.12 (Ready)";
+                    statusBadge.style.color = "#10b981";
+                };
+                script.onerror = () => {
+                    statusBadge.textContent = "Engine: Standalone Mode";
+                };
+                document.head.appendChild(script);
+            } else {
+                pyodideInstance = await loadPyodide();
+                statusBadge.textContent = "Engine: Python 3.12 (Ready)";
+                statusBadge.style.color = "#10b981";
+            }
+        } catch (err) {
+            console.warn("Wasm load error:", err);
+            statusBadge.textContent = "Engine: Standalone Mode";
+        }
+    }
+
+    loadPythonRuntime();
+
+    async function executeCode() {
+        const lang = langSelect.value;
+        const code = editor.value;
+        output.textContent = "Executing...";
+        const t0 = performance.now();
+
+        if (lang === "javascript") {
+            let logs = [];
+            const oldLog = console.log;
+            console.log = (...args) => {
+                logs.push(args.map(a => typeof a === "object" ? JSON.stringify(a, null, 2) : String(a)).join(" "));
+            };
+            try {
+                const result = eval(code);
+                console.log = oldLog;
+                const outText = logs.join("\n") + (result !== undefined && logs.length === 0 ? String(result) : "");
+                output.textContent = outText || "(Code executed with no output)";
+                const t1 = performance.now();
+                execTime.textContent = `Completed in ${(t1 - t0).toFixed(1)}ms`;
+            } catch (err) {
+                console.log = oldLog;
+                output.textContent = `Error: ${err.message}`;
+                execTime.textContent = "Execution failed";
+            }
+            return;
+        }
+
+        // Python execution
+        if (pyodideInstance) {
+            try {
+                pyodideInstance.runPython(`
+import sys
+import io
+sys.stdout = io.StringIO()
+sys.stderr = io.StringIO()
+`);
+                await pyodideInstance.runPythonAsync(code);
+                const stdout = pyodideInstance.runPython("sys.stdout.getvalue()");
+                const stderr = pyodideInstance.runPython("sys.stderr.getvalue()");
+                const t1 = performance.now();
+                execTime.textContent = `Completed in ${(t1 - t0).toFixed(1)}ms`;
+                if (stderr) {
+                    output.textContent = stdout + "\n" + stderr;
+                } else {
+                    output.textContent = stdout || "(Code executed with no output)";
+                }
+            } catch (err) {
+                const t1 = performance.now();
+                execTime.textContent = `Error in ${(t1 - t0).toFixed(1)}ms`;
+                output.textContent = `Traceback:\n${err.message}`;
+            }
+        } else {
+            // Simulated evaluation if Pyodide is still downloading
+            output.textContent = "Python engine is loading in background... Running client test simulation:\n";
+            try {
+                // If simple print statement, simulate output
+                const prints = [];
+                const lines = code.split("\n");
+                for (let l of lines) {
+                    const m = l.trim().match(/^print\((.*)\)$/);
+                    if (m) {
+                        try { prints.push(eval(m[1])); } catch { prints.push(m[1]); }
+                    }
+                }
+                if (prints.length > 0) {
+                    output.textContent += prints.join("\n");
+                } else {
+                    output.textContent += "Loaded code ready. Full Pyodide runtime will be ready in seconds.";
+                }
+            } catch(e) {
+                output.textContent += `Ready: ${code.length} characters`;
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

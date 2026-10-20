@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Log In · LearnForge{% endblock %}
+
+{% block content %}
+<div class="auth-form-page">
+    <h1 class="lesson__title" style="font-size: 26px;">Log In</h1>
+
+    <form method="POST" novalidate>
+        {{ form.hidden_tag() }}
+
+        <div class="form-field">
+            {{ form.email.label }}
+            {{ form.email(placeholder="you@example.com") }}
+            {% if form.email.errors %}
+                <div class="form-errors">{{ form.email.errors[0] }}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-field">
+            {{ form.password.label }}
+            {{ form.password() }}
+            {% if form.password.errors %}
+                <div class="form-errors">{{ form.password.errors[0] }}</div>
+            {% endif %}
+        </div>
+
+        {{ form.submit(class="btn btn-primary", style="width: 100%;") }}
+    </form>
+
+    <p class="auth-alt-action">
+        <a href="{{ url_for('auth.forgot_password') }}" style="display: block; margin-bottom: 8px;">Forgot your password?</a>
+        Don't have an account? <a href="{{ url_for('auth.register') }}">Sign up</a>
+    </p>
+</div>
+{% endblock %}

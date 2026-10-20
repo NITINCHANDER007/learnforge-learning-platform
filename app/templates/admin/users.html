@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Manage Users · LearnForge{% endblock %}
+{% block content %}
+<div class="dash-layout">
+    {% include "admin/_nav.html" %}
+
+    <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4);">
+            <h1 class="lesson__title" style="font-size: 26px; margin-bottom: 0;">Users</h1>
+            <span style="color: var(--color-text-secondary); font-size: 14px;">Total: {{ users|length }}</span>
+        </div>
+
+        <form method="GET" action="{{ url_for('admin.users') }}" style="display: flex; gap: var(--space-2); margin-bottom: var(--space-4); flex-wrap: wrap;">
+            <input type="text" name="q" value="{{ search_q }}" placeholder="Search name or email..." class="form-control" style="flex: 1; min-width: 200px; padding: 6px 12px; background: var(--color-bg); border: 1px solid var(--color-border); border-radius: var(--radius-sm); color: var(--color-text);">
+            <select name="role" class="form-control" style="padding: 6px 12px; background: var(--color-bg); border: 1px solid var(--color-border); border-radius: var(--radius-sm); color: var(--color-text);">
+                <option value="">All Roles</option>
+                <option value="student" {{ 'selected' if role_filter == 'student' }}>Student</option>
+                <option value="admin" {{ 'selected' if role_filter == 'admin' }}>Admin</option>
+            </select>
+            <select name="status" class="form-control" style="padding: 6px 12px; background: var(--color-bg); border: 1px solid var(--color-border); border-radius: var(--radius-sm); color: var(--color-text);">
+                <option value="">All Statuses</option>
+                <option value="active" {{ 'selected' if status_filter == 'active' }}>Active</option>
+                <option value="inactive" {{ 'selected' if status_filter == 'inactive' }}>Inactive</option>
+            </select>
+            <button type="submit" class="btn btn-secondary" style="padding: 6px 14px;">Filter</button>
+            {% if search_q or role_filter or status_filter %}
+                <a href="{{ url_for('admin.users') }}" class="btn btn-secondary" style="padding: 6px 14px;">Reset</a>
+            {% endif %}
+        </form>
+
+        <table class="dash-table">
+            <tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Joined</th><th>Actions</th></tr>
+            {% for user in users %}
+            <tr>
+                <td><strong>{{ user.name }}</strong></td>
+                <td>{{ user.email }}</td>
+                <td><span class="badge {{ 'badge-admin' if user.is_admin else 'badge-student' }}">{{ user.role }}</span></td>
+                <td>
+                    <span class="badge {{ 'badge-student' if user.is_active else 'badge-admin' }}">
+                        {{ 'Active' if user.is_active else 'Inactive' }}
+                    </span>
+                </td>
+                <td>{{ user.created_at.strftime('%b %d, %Y') }}</td>
+                <td style="white-space: nowrap;">
+                    <a href="{{ url_for('admin.user_progress', user_id=user.id) }}" class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;">Progress</a>
+                    <a href="{{ url_for('admin.edit_user', user_id=user.id) }}" class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;">Edit</a>
+                    <form method="POST" action="{{ url_for('admin.change_role', user_id=user.id) }}" style="display:inline;">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="role" value="{{ 'student' if user.is_admin else 'admin' }}">
+                        <button type="submit" class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;">
+                            {{ 'Demote' if user.is_admin else 'Promote' }}
+                        </button>
+                    </form>
+                    {% if user.id != current_user.id %}
+                    <form method="POST" action="{{ url_for('admin.toggle_active', user_id=user.id) }}" style="display:inline;">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;">
+                            {{ 'Deactivate' if user.is_active else 'Activate' }}
+                        </button>
+                    </form>
+                    <form method="POST" action="{{ url_for('admin.delete_user', user_id=user.id) }}" style="display:inline;"
+                          onsubmit="return confirm('Delete this user? This cannot be undone.');">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-danger" style="padding: 4px 8px; font-size: 12px;">Delete</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="6" style="text-align: center; color: var(--color-text-secondary); padding: 20px;">No users match the criteria.</td></tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+{% endblock %}

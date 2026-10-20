@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}{{ heading }} · LearnForge{% endblock %}
+{% block content %}
+<div class="dash-layout">
+    {% include "admin/_nav.html" %}
+    <div>
+        <p><a href="{{ back_url }}">&larr; Back</a></p>
+        <h1 class="lesson__title" style="font-size: 26px;">{{ heading }}</h1>
+        <p style="color: var(--color-text-secondary); font-size: 13px;">Drag items into the order you want, then Save.</p>
+
+        <ul id="reorder-list" class="reorder-list" data-save-url="{{ save_url }}" data-csrf-token="{{ csrf_token() }}">
+            {% for item in items %}
+                <li class="reorder-item" draggable="true" data-slug="{{ item.slug }}">
+                    <span class="reorder-item__handle" aria-hidden="true">⠿</span>
+                    <span class="reorder-item__title">{{ item.title }}</span>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <button type="button" id="reorder-save-btn" class="btn btn-primary" style="margin-top: var(--space-4);">Save Order</button>
+        <span id="reorder-status" class="reorder-status" role="status" aria-live="polite"></span>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/reorder.js') }}" defer></script>
+{% endblock %}

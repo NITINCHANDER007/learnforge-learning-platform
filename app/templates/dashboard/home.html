@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · LearnForge{% endblock %}
+{% block content %}
+<div class="dash-layout">
+    {% include "dashboard/_nav.html" %}
+
+    <div>
+        <div class="dash-welcome">
+            <div>
+                <h1 class="lesson__title" style="font-size: 26px; margin-bottom: 4px;">Welcome back, {{ current_user.name.split(' ')[0] }}</h1>
+                <p style="color: var(--color-text-secondary); margin: 0;">Here's where your learning stands today.</p>
+            </div>
+            {% if streak > 0 %}
+            <div class="streak-badge">
+                <span class="streak-badge__flame" aria-hidden="true">🔥</span>
+                <div>
+                    <div class="streak-badge__value">{{ streak }} day{{ 's' if streak != 1 }}</div>
+                    <div class="streak-badge__label">Learning streak</div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="dash-stat-grid">
+            <div class="dash-stat">
+                <div class="dash-stat__value">{{ completed_count }}</div>
+                <div class="dash-stat__label">Lessons Completed</div>
+            </div>
+            <div class="dash-stat">
+                <div class="dash-stat__value">{{ bookmark_count }}</div>
+                <div class="dash-stat__label">Bookmarks</div>
+            </div>
+            <div class="dash-stat">
+                <div class="dash-stat__value">{{ note_count }}</div>
+                <div class="dash-stat__label">Notes</div>
+            </div>
+        </div>
+
+        {% if continue_learning %}
+        <a href="{{ url_for('main.view_lesson', subject_slug=continue_learning.subject_slug, lesson_slug=continue_learning.lesson_slug) }}" class="continue-card">
+            <div class="continue-card__label">Continue Learning</div>
+            <div class="continue-card__title">{{ continue_learning.title }}</div>
+            <div class="continue-card__subject">{{ continue_learning.subject_title }}</div>
+            <div class="continue-card__cta">Resume &rarr;</div>
+        </a>
+        {% endif %}
+
+        {% if progress_chart %}
+        <div class="dash-card">
+            <h2 class="dash-card__title">Progress by Subject</h2>
+            {% for row in progress_chart %}
+                <div class="progress-row">
+                    <div class="progress-row__header">
+                        <span>{{ row.title }}</span>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="progress-row__count">{{ row.completed }}/{{ row.total }} ({{ row.percent }}%)</span>
+                            <a href="{{ url_for('dashboard.certificate', subject_slug=row.slug) }}" class="btn btn-secondary" style="font-size: 11px; padding: 2px 8px; border-radius: 4px; text-decoration: none;">
+                                🎓 Certificate
+                            </a>
+                        </div>
+                    </div>
+                    <div class="progress-row__track">
+                        <div class="progress-row__fill" style="width: {{ row.percent }}%;"></div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="dash-card">
+            <h2 class="dash-card__title">Recent Activity</h2>
+            {% if recent_activity %}
+                <ul class="activity-list">
+                    {% for event in recent_activity %}
+                        <li class="activity-item">
+                            {% if event.type == "completed" %}
+                                <span class="activity-item__icon activity-item__icon--completed" aria-hidden="true">✓</span>
+                                <span>Completed
+                                    {% if event.subject_slug %}<a href="{{ url_for('main.view_lesson', subject_slug=event.subject_slug, lesson_slug=event.lesson_slug) }}">{{ event.title }}</a>{% else %}{{ event.title }}{% endif %}
+                                </span>
+                            {% elif event.type == "bookmarked" %}
+                                <span class="activity-item__icon activity-item__icon--bookmark" aria-hidden="true">★</span>
+                                <span>Bookmarked
+                                    {% if event.subject_slug %}<a href="{{ url_for('main.view_lesson', subject_slug=event.subject_slug, lesson_slug=event.lesson_slug) }}">{{ event.title }}</a>{% else %}{{ event.title }}{% endif %}
+                                </span>
+                            {% else %}
+                                <span class="activity-item__icon activity-item__icon--note" aria-hidden="true">🗒</span>
+                                <span>Created note <a href="{{ url_for('dashboard.notes') }}">{{ event.title }}</a></span>
+                            {% endif %}
+                            <span class="activity-item__time">{{ event.at.strftime('%b %d') }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p style="color: var(--color-text-secondary);">No activity yet — complete or bookmark a lesson to see it here.</p>
+            {% endif %}
+        </div>
+
+        <div class="dash-card">
+            <h2 class="dash-card__title">Recent Bookmarks</h2>
+            {% if recent_bookmarks %}
+                {% for b in recent_bookmarks %}
+                    <p style="margin: 8px 0;">
+                        <a href="{{ url_for('main.view_lesson', subject_slug=b.subject_slug, lesson_slug=b.lesson_slug) }}">{{ b.title }}</a>
+                    </p>
+                {% endfor %}
+            {% else %}
+                <p style="color: var(--color-text-secondary);">No bookmarks yet — bookmark a lesson to see it here.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

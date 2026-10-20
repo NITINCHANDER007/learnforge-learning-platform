@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}500 Server Error · LearnForge{% endblock %}
+{% block content %}
+<div class="content__body" style="text-align: center; padding: var(--space-8) var(--space-4); max-width: 600px; margin: 0 auto;">
+    <div style="font-size: 64px; font-weight: 700; color: var(--color-error); margin-bottom: var(--space-2);">500</div>
+    <h1 class="lesson__title" style="font-size: 28px; margin-bottom: var(--space-3);">Something went wrong</h1>
+    <p style="color: var(--color-text-secondary); margin-bottom: var(--space-6); font-size: 16px;">
+        An unexpected server error occurred. Our engineering team has been alerted. Please try again shortly.
+    </p>
+    <a href="{{ url_for('main.home') }}" class="btn btn-primary">Return Home</a>
+</div>
+{% endblock %}

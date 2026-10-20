@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+
+{% block title %}LearnForge · Learn. Build. Master.{% endblock %}
+
+{% block content %}
+{% set subject_icons = {
+    "python": "🐍", "sql": "🗄️", "html": "📄", "css": "🎨", "javascript": "⚡",
+    "flask": "🧪", "pandas": "🐼", "numpy": "🔢", "machine-learning": "🤖",
+    "data-visualization": "📊", "power-bi": "📈", "excel": "📗",
+    "web-scraping": "🕸️", "file-handling": "🗂️"
+} %}
+
+<div class="home">
+
+    <!-- ============ HERO ============ -->
+    <section class="hero">
+        <div class="hero__bg" aria-hidden="true"></div>
+        <div class="hero__grid">
+            <div class="hero__inner">
+                <div class="hero__badge">
+                    <span class="hero__badge-dot"></span>
+                    <span>14 Subjects · 166 Interactive Lessons · 100% Free</span>
+                </div>
+                <h1 class="hero__headline">
+                    Master Programming.<br>
+                    <span class="hero__headline-gradient">One Lesson at a Time.</span>
+                </h1>
+                <p class="hero__subtitle">
+                    Fast, distraction-free curriculum covering Python, SQL, Machine Learning,
+                    Data Analytics, Web Development, and more. Built for how engineers actually learn.
+                </p>
+                <div class="hero__actions">
+                    {% if first_subject_slug %}
+                        <a href="{{ url_for('main.view_subject', subject_slug=first_subject_slug) }}" class="btn btn-primary btn-lg">
+                            <span>🚀 Start Learning Free</span>
+                        </a>
+                    {% endif %}
+                    <a href="{{ url_for('main.playground') }}" class="btn btn-secondary btn-lg">
+                        <span>⚡ Code Playground</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="hero__preview">
+                <div class="hero-code-window">
+                    <div class="hero-code-window__bar">
+                        <div class="hero-code-window__dots">
+                            <span class="dot dot--red"></span>
+                            <span class="dot dot--yellow"></span>
+                            <span class="dot dot--green"></span>
+                        </div>
+                        <span class="hero-code-window__title">learn.py — LearnForge Interactive Engine</span>
+                        <a href="{{ url_for('main.playground') }}" class="hero-code-window__run">▶ Run Live</a>
+                    </div>
+                    <pre class="hero-code-window__content"><code><span class="tok-comment"># Welcome to LearnForge</span>
+<span class="tok-kw">from</span> learnforge <span class="tok-kw">import</span> curriculum
+
+student = {<span class="tok-str">"role"</span>: <span class="tok-str">"Builder"</span>, <span class="tok-str">"streak"</span>: 1}
+paths = [<span class="tok-str">"Python"</span>, <span class="tok-str">"SQL"</span>, <span class="tok-str">"Machine Learning"</span>]
+
+<span class="tok-kw">for</span> track <span class="tok-kw">in</span> paths:
+    print(<span class="tok-str">f"✨ Mastering {track} with hands-on code..."</span>)
+
+print(<span class="tok-str">"🎓 100% verified mastery unlocked!"</span>)</code></pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ FEATURES ============ -->
+    <section class="section">
+        <h2 class="section__title">Everything you need to actually learn</h2>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-card__icon">📝</div>
+                <h3>Markdown-Based Learning</h3>
+                <p>Every lesson is clean, readable, distraction-free content — not a wall of ads.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-card__icon">✅</div>
+                <h3>Progress Tracking</h3>
+                <p>Mark lessons complete and pick up exactly where you left off.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-card__icon">⭐</div>
+                <h3>Bookmarks</h3>
+                <p>Save any lesson for later with one click.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-card__icon">🗒️</div>
+                <h3>Personal Notes</h3>
+                <p>Write your own notes alongside any lesson, with file attachments.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-card__icon">🛠️</div>
+                <h3>Admin Content Management</h3>
+                <p>Lessons are authored and published through a real content workflow.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-card__icon">🔐</div>
+                <h3>Authentication</h3>
+                <p>Your account, your progress, your notes — securely yours.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-card__icon">📱</div>
+                <h3>Responsive Design</h3>
+                <p>Learn comfortably on desktop, tablet, or phone.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-card__icon">⚡</div>
+                <h3>Fast Loading</h3>
+                <p>Server-rendered pages, zero unnecessary JavaScript, nothing to wait on.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ LEARNING PATHS ============ -->
+    <section class="section" id="subjects">
+        <h2 class="section__title">Learning Paths</h2>
+        <p class="section__subtitle">Pick a subject and start right where you are.</p>
+
+        <div class="subject-grid">
+            {% for subject in subjects %}
+                <a href="{{ url_for('main.view_subject', subject_slug=subject.slug) }}" class="subject-card">
+                    <div class="subject-card__icon">{{ subject_icons.get(subject.slug, "📚") }}</div>
+                    <div class="subject-card__title">{{ subject.title }}</div>
+                    <div class="subject-card__cta">Start learning &rarr;</div>
+                </a>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- ============ WHY LEARNFORGE ============ -->
+    <section class="section">
+        <h2 class="section__title">Why LearnForge</h2>
+        <div class="why-grid">
+            <div class="why-block">
+                <div class="why-block__number">01</div>
+                <h3>Learn by Reading</h3>
+                <p>No bloated videos to sit through — clear explanations, real code, and examples you can scan in minutes.</p>
+            </div>
+            <div class="why-block">
+                <div class="why-block__number">02</div>
+                <h3>Track Progress</h3>
+                <p>Every completed lesson is remembered, so you always know exactly how far you've come.</p>
+            </div>
+            <div class="why-block">
+                <div class="why-block__number">03</div>
+                <h3>Continue Anytime</h3>
+                <p>Bookmark what matters, jump back in whenever you have five minutes, and keep moving.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ STATS ============ -->
+    <section class="section stats-section">
+        <div class="stats-grid">
+            <div class="stat-block">
+                <div class="stat-block__value" data-counter data-target="{{ total_subjects }}" data-suffix="+">{{ total_subjects }}+</div>
+                <div class="stat-block__label">Subjects</div>
+            </div>
+            <div class="stat-block">
+                <div class="stat-block__value" data-counter data-target="{{ total_lessons }}" data-suffix="+">{{ total_lessons }}+</div>
+                <div class="stat-block__label">Lessons</div>
+            </div>
+            <div class="stat-block">
+                <div class="stat-block__value" data-counter data-target="100" data-suffix="%">100%</div>
+                <div class="stat-block__label">Markdown Powered</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ CTA ============ -->
+    <section class="cta-section">
+        <h2>Ready to start learning?</h2>
+        {% if first_subject_slug %}
+            <a href="{{ url_for('main.view_subject', subject_slug=first_subject_slug) }}" class="btn btn-primary btn-lg">Start Learning</a>
+        {% endif %}
+    </section>
+
+</div>
+{% endblock %}
+
+{% block footer %}
+<footer class="site-footer">
+    <div class="site-footer__inner">
+        <div class="site-footer__brand">LearnForge</div>
+        <nav class="site-footer__links" aria-label="Footer">
+            <a href="https://github.com" target="_blank" rel="noopener">GitHub</a>
+            <a href="{{ url_for('main.about') }}">About</a>
+            <a href="{{ url_for('main.privacy') }}">Privacy</a>
+            <a href="{{ url_for('main.terms') }}">Terms</a>
+        </nav>
+    </div>
+</footer>
+{% endblock %}

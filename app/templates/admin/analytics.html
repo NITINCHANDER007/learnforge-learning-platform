@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Analytics · LearnForge Admin{% endblock %}
+{% block content %}
+<div class="dash-layout">
+    {% include "admin/_nav.html" %}
+
+    <div>
+        <h1 class="lesson__title" style="font-size: 26px; margin-bottom: var(--space-4);">Platform Analytics</h1>
+
+        <div class="dash-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: var(--space-6);">
+            <div class="dash-card">
+                <div class="dash-stat__num">{{ active_users_count }}</div>
+                <div class="dash-stat__label">Active Users (Last 7 Days)</div>
+            </div>
+            <div class="dash-card">
+                <div class="dash-stat__num">
+                    {{ daily_stats|map(attribute='1')|sum }}
+                </div>
+                <div class="dash-stat__label">Completions (Last 30 Days)</div>
+            </div>
+            <div class="dash-card">
+                <div class="dash-stat__num">{{ top_completed|length }}</div>
+                <div class="dash-stat__label">Top Performing Lessons</div>
+            </div>
+        </div>
+
+        <div class="dash-card" style="margin-bottom: var(--space-6);">
+            <h2 style="font-size: 18px; margin-bottom: var(--space-3);">Lessons Completed Per Day (Last 30 Days)</h2>
+            <div style="overflow-x: auto;">
+                <table class="dash-table">
+                    <tr>
+                        <th>Date</th>
+                        <th>Completions</th>
+                        <th style="width: 60%;">Volume</th>
+                    </tr>
+                    {% set max_completions = (daily_stats|map(attribute='1')|max)|default(1, true) %}
+                    {% for day, count in daily_stats|reverse %}
+                    <tr>
+                        <td>{{ day }}</td>
+                        <td><strong>{{ count }}</strong></td>
+                        <td>
+                            <div style="background: var(--color-border); border-radius: 4px; height: 14px; width: 100%; overflow: hidden;">
+                                <div style="background: var(--color-primary); height: 100%; width: {{ (count / (max_completions if max_completions > 0 else 1) * 100)|round }}%;"></div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6);">
+            <div class="dash-card">
+                <h2 style="font-size: 18px; margin-bottom: var(--space-3);">Most Completed Lessons</h2>
+                {% if top_completed %}
+                    <table class="dash-table">
+                        <tr><th>Lesson Path</th><th>Completions</th></tr>
+                        {% for path, count in top_completed %}
+                        <tr>
+                            <td><code>{{ path }}</code></td>
+                            <td><span class="badge badge-student">{{ count }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                {% else %}
+                    <p style="color: var(--color-text-secondary);">No lesson completions yet.</p>
+                {% endif %}
+            </div>
+
+            <div class="dash-card">
+                <h2 style="font-size: 18px; margin-bottom: var(--space-3);">Active Users (Last 7 Days)</h2>
+                {% if active_users %}
+                    <table class="dash-table">
+                        <tr><th>Name</th><th>Email</th><th>Actions</th></tr>
+                        {% for u in active_users %}
+                        <tr>
+                            <td>{{ u.name }}</td>
+                            <td>{{ u.email }}</td>
+                            <td>
+                                <a href="{{ url_for('admin.user_progress', user_id=u.id) }}" class="btn btn-secondary" style="padding: 2px 8px; font-size: 12px;">Progress</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                {% else %}
+                    <p style="color: var(--color-text-secondary);">No active users in the last 7 days.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

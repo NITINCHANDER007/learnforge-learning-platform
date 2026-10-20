@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}{{ "Edit Note" if note else "New Note" }} · LearnForge{% endblock %}
+{% block content %}
+<div class="dash-layout">
+    {% include "dashboard/_nav.html" %}
+
+    <div>
+        <h1 class="lesson__title" style="font-size: 26px;">{{ "Edit Note" if note else "New Note" }}</h1>
+
+        <div class="dash-card">
+            <form method="POST" enctype="multipart/form-data" novalidate>
+                {{ form.hidden_tag() }}
+
+                <div class="form-field">
+                    {{ form.title.label }}
+                    {{ form.title() }}
+                    {% if form.title.errors %}<div class="form-errors">{{ form.title.errors[0] }}</div>{% endif %}
+                </div>
+
+                <div class="form-field">
+                    {{ form.body.label }}
+                    {{ form.body() }}
+                    {% if form.body.errors %}<div class="form-errors">{{ form.body.errors[0] }}</div>{% endif %}
+                </div>
+
+                <div class="form-field">
+                    {{ form.attachment.label }}
+                    {{ form.attachment() }}
+                    {% if form.attachment.errors %}<div class="form-errors">{{ form.attachment.errors[0] }}</div>{% endif %}
+                    {% if note and note.attachment_path %}
+                        <p style="font-size: 12px; color: var(--color-text-secondary); margin-top: 4px;">
+                            Current attachment: <a href="{{ url_for('uploads.serve_upload', filepath=note.attachment_path) }}">view</a>
+                            (uploading a new file replaces it)
+                        </p>
+                    {% endif %}
+                </div>
+
+                {{ form.submit(class="btn btn-primary") }}
+                <a href="{{ url_for('dashboard.notes') }}" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

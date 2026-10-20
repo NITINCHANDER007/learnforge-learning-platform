@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit Note' if note else 'New Note' }} · LearnForge{% endblock %}
+{% block content %}
+<div class="dash-layout">
+    {% include "admin/_nav.html" %}
+    <div>
+        <h1 class="lesson__title" style="font-size: 26px;">{{ 'Edit Official Note' if note else 'New Official Note' }}</h1>
+        <p style="color: var(--color-text-secondary); font-size: 13px;">On {{ subject_slug }}/{{ lesson_slug }} — visible to every visitor once published.</p>
+
+        <form method="POST" enctype="multipart/form-data" novalidate style="max-width: 640px;">
+            {{ form.hidden_tag() }}
+
+            <div class="form-field">
+                {{ form.title.label }}
+                {{ form.title() }}
+                {% if form.title.errors %}<div class="form-errors">{{ form.title.errors[0] }}</div>{% endif %}
+            </div>
+
+            <div class="form-field">
+                {{ form.body.label }}
+                {{ form.body() }}
+                {% if form.body.errors %}<div class="form-errors">{{ form.body.errors[0] }}</div>{% endif %}
+            </div>
+
+            <div class="form-field">
+                {{ form.attachment.label }}
+                {{ form.attachment() }}
+                {% if form.attachment.errors %}<div class="form-errors">{{ form.attachment.errors[0] }}</div>{% endif %}
+                {% if note and note.attachment_path %}
+                    <p style="font-size: 12px; color: var(--color-text-secondary);">Current attachment: {{ note.attachment_path }}</p>
+                {% endif %}
+            </div>
+
+            <div class="form-field">
+                <label>{{ form.pinned() }} {{ form.pinned.label.text }}</label>
+            </div>
+
+            <div class="form-field">
+                <label>{{ form.published() }} {{ form.published.label.text }}</label>
+            </div>
+
+            {{ form.submit(class="btn btn-primary") }}
+        </form>
+    </div>
+</div>
+{% endblock %}

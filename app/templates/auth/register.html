@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Sign Up · LearnForge{% endblock %}
+
+{% block content %}
+<div class="auth-form-page">
+    <h1 class="lesson__title" style="font-size: 26px;">Create Your Account</h1>
+
+    <form method="POST" novalidate>
+        {{ form.hidden_tag() }}
+
+        <div class="form-field">
+            {{ form.name.label }}
+            {{ form.name(placeholder="Ada Lovelace") }}
+            {% if form.name.errors %}
+                <div class="form-errors">{{ form.name.errors[0] }}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-field">
+            {{ form.email.label }}
+            {{ form.email(placeholder="you@example.com") }}
+            {% if form.email.errors %}
+                <div class="form-errors">{{ form.email.errors[0] }}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-field">
+            {{ form.password.label }}
+            {{ form.password() }}
+            {% if form.password.errors %}
+                <div class="form-errors">{{ form.password.errors[0] }}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-field">
+            {{ form.confirm_password.label }}
+            {{ form.confirm_password() }}
+            {% if form.confirm_password.errors %}
+                <div class="form-errors">{{ form.confirm_password.errors[0] }}</div>
+            {% endif %}
+        </div>
+
+        {{ form.submit(class="btn btn-primary", style="width: 100%;") }}
+    </form>
+
+    <p class="auth-alt-action">
+        Already have an account? <a href="{{ url_for('auth.login') }}">Log in</a>
+    </p>
+</div>
+{% endblock %}
